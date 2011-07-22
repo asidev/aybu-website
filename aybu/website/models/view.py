@@ -29,6 +29,9 @@ class View(Base):
     name = Column(Unicode(255), unique=True)
     fs_view_path = Column(String(255), unique=True)
 
+    def __repr__(self):
+        return "<View %s (%s)>" % (self.name, self.fs_view_path)
+
 
 class ViewDescription(Base):
 
@@ -47,3 +50,6 @@ class ViewDescription(Base):
 
     view = relationship('View', backref='descriptions')
     language = relationship('Language')
+
+    def __repr__(self):
+        return "<ViewDescription %s>" % (self.description)

@@ -3,42 +3,48 @@
 
 """ Copyright © 2010 Asidev s.r.l. - www.asidev.com """
 
+from aybu.website.models import Base
+from logging import getLogger
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import Unicode
+from sqlalchemy.orm import backref
+from sqlalchemy.orm import relationship
 
-from elixir import Entity, Field, Unicode, String
-from elixir import Boolean
-from elixir import using_options
-from elixir import ManyToOne, OneToMany
+
+__all__ = []
+
+log = getLogger(__name__)
 
 
-class SettingType(Entity):
-    name = Field(Unicode(64), primary_key=True)
-    settings = OneToMany("Setting")
+class SettingType(Base):
 
-    using_options(tablename="setting_types")
+    __tablename__ = 'setting_types'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
 
-    def __str__(self):
+    name = Column(Unicode(64), primary_key=True)
+
+    def __repr__(self):
         return "<SettingType %s>" % (self.name)
 
+
+class Setting(Base):
+
+    __tablename__ = 'settings'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
+
+    name = Column(Unicode(128), primary_key=True)
+    value = Column(Unicode(512), nullable=False)
+    raw_type = Column(String(8), nullable=False)
+    ui_administrable = Column(Boolean, default=False)
+    
+    type_name = Column(Integer, ForeignKey('setting_types.name',
+                                           onupdate='cascade',
+                                           ondelete='restrict'))
+
+    type = relationship('SettingType', backref='settings')
+
     def __repr__(self):
-        return self.__str__()
-
-
-class Setting(Entity):
-    name = Field(Unicode(128), primary_key=True)
-    value = Field(Unicode(512), required=True)
-    raw_type = Field(String(8), required=True)
-    ui_administrable = Field(Boolean, default=False)
-
-    type = ManyToOne('SettingType', lazy=False,
-                     onupdate="cascade", ondelete="restrict")
-
-    using_options(tablename="settings")
-
-    def __str__(self):
         return "<Setting %s (%s)>" % (self.name, self.raw_type)
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, s):
-        return self.name == s.name

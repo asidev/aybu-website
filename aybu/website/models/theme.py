@@ -21,7 +21,7 @@ log = getLogger(__name__)
 
 node_infos_keywords = Table('node_infos_keywords',
                             Base.metadata,
-                            Column('node_info_id',
+                            Column('node_infos_id',
                                    Integer,
                                    ForeignKey('node_infos.id',
                                               onupdate="cascade",

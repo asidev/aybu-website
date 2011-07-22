@@ -1,32 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Copyright © 2010 Asidev s.r.l. - www.asidev.com
-"""
+""" Copyright © 2010 Asidev s.r.l. - www.asidev.com """
 
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import Unicode
 import logging
 import os
 import PIL
 
-from elixir import using_options, using_options_defaults, options_defaults
-from pufferfish import FileSystemEntity
-from pufferfish import add_session_hooks
-
-from aybu.cms.lib.containers import Storage
-
+__all__ = []
 
 log = logging.getLogger(__name__)
 
 
-using_options_defaults(table_options=dict(mysql_engine="InnoDB"))
-options_defaults.update(dict(table_options=dict(mysql_engine="InnoDB")))
-
-
-__all__ = ['File', 'Image']
-
-
-class File(FileSystemEntity):
+class File(Base):
     """
         Simple class that can be used as an elixir Entity
         that keeps the file on disk.
@@ -37,51 +26,23 @@ class File(FileSystemEntity):
         ...
     """
 
-    add_session_hooks()
-    using_options(tablename="files")
+    __tablename__ = 'files'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
+    discriminator = Column('row_type', Unicode(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
 
-    def to_dict(self):
-        d = Storage(super(File, self).to_dict())
-        d.id = self.id
-        #d.type = self.table.c.row_type
-        return d
-
-
-class Thumbnail(object):
-    """ Utility class to model thumbnails for a given Image entity """
-
-    def __init__(self, image, name, size):
-        self.image = image
-        self.name = name
-        self.width = size[0]
-        self.height = size[1]
-
-    @property
-    def path(self):
-        return os.path.join(self.image.dir, "%s_%s%s" % (self.image.plain_name,
-                                                         self.name,
-                                                         self.image.extension))
-
-    @property
-    def url(self):
-        return str(self.path.replace(self.image.private_path, ""))
-
-    def save(self, handle):
-        copy = handle.copy()
-        copy.thumbnail((self.width, self.height), PIL.Image.ANTIALIAS)
-        copy.save(self.path)
-
-    def __str__(self):
-        return "<Thumbnail '%s' (image: %d) [%sx%s]>" % (self.name,
-                                                         self.image.id,
-                                                         self.width,
-                                                         self.height)
-
-    def __repr__(self):
-        return self.__str__()
+    id = Column(Integer, primary_key=True)
+    content_type = Column(Unicode(128))
+    name = Column(Unicode(128), required=True)
+    size = Column(Integer)
 
 
 class Banner(File):
+
+    __tablename__ = 'banners'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
+    __mapper_args__ = {'polymorphic_identity': 'banner'}
+
     full_size = None
     thumb_sizes = {}
 
@@ -104,16 +65,10 @@ class Banner(File):
                 handle = handle.resize(self.full_size)
 
             handle.save(self.path)
-
-    def __str__(self):
-        self.setup_paths()
-        return "<Banner %d at %s : %s>" % (self.id, self.path, self.url)
-
+        
     def __repr__(self):
         self.setup_paths()
-        return self.__str__()
-
-    using_options(tablename="banners", inheritance='single')
+        return "<Banner %d at %s : %s>" % (self.id, self.path, self.url)
 
 
 class Image(File):
@@ -140,10 +95,12 @@ class Image(File):
         >>> Image.full_size = (600, 600)
     """
 
+    __tablename__ = 'images'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
+    __mapper_args__ = {'polymorphic_identity': 'image'}
+
     full_size = None
     thumb_sizes = {}
-
-    using_options(tablename="images", inheritance='single')
 
     @classmethod
     def set_sizes(cls, full=None, thumbs={}):
@@ -170,12 +127,40 @@ class Image(File):
         """ Called when saving source """
         if self.full_size:
             handle.thumbnail(self.full_size, PIL.Image.ANTIALIAS)
-        handle.save(self.path)
 
-    def __str__(self):
-        self.setup_paths()
-        return "<Image %d at %s : %s>" % (self.id, self.path, self.url)
+        handle.save(self.path)
 
     def __repr__(self):
         self.setup_paths()
-        return self.__str__()
+        return "<Image %d at %s : %s>" % (self.id, self.path, self.url)
+
+
+class Thumbnail(object):
+    """ Utility class to model thumbnails for a given Image entity """
+
+    def __init__(self, image, name, size):
+        self.image = image
+        self.name = name
+        self.width = size[0]
+        self.height = size[1]
+
+    @property
+    def path(self):
+        return os.path.join(self.image.dir, "%s_%s%s" % (self.image.plain_name,
+                                                         self.name,
+                                                         self.image.extension))
+
+    @property
+    def url(self):
+        return str(self.path.replace(self.image.private_path, ""))
+
+    def save(self, handle):
+        copy = handle.copy()
+        copy.thumbnail((self.width, self.height), PIL.Image.ANTIALIAS)
+        copy.save(self.path)
+
+    def __repr__(self):
+        return "<Thumbnail '%s' (image: %d) [%sx%s]>" % (self.name,
+                                                         self.image.id,
+                                                         self.width,
+                                                         self.height)

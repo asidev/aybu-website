@@ -38,8 +38,7 @@ class Node(Base):
     parent_id = Column(Integer, ForeignKey('nodes.id'))
     children = relationship('Node', backref=backref('parent', remote_side=id))
 
-    # row_type?
-    discriminator = Column('type', Unicode(50))
+    discriminator = Column('row_type', Unicode(50))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     @classmethod
