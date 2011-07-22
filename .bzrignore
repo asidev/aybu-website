@@ -10,3 +10,4 @@ aybu_website.egg-info/top_level.txt
 *.pyc
 *komodo*
 development.ini
+template.ini
