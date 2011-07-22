@@ -36,6 +36,7 @@ users_groups = Table('users_groups',
 class User(Base):
 
     __tablename__ = 'users'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
 
     username = Column(Unicode(255), primary_key=True)
     password = Column(SHA1(), nullable=False)
@@ -44,6 +45,9 @@ class User(Base):
 
 
 class Group(Base):
+
+    __tablename__ = 'groups'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
 
     name = Column(Unicode(32), primary_key=True)
 
