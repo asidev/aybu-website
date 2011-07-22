@@ -1,79 +1,56 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Copyright © 2010 Asidev s.r.l. - www.asidev.com
-"""
+""" Copyright © 2010 Asidev s.r.l. - www.asidev.com """
+
+from aybu.website.models import Base
+from logging import getLogger
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import Unicode
+from sqlalchemy.orm import backref
+from sqlalchemy.orm import relationship
 
 
-from elixir import using_options_defaults
-from elixir import options_defaults
-from elixir import Entity, Field, Unicode
-from elixir import using_options
-from elixir import ManyToOne, OneToMany, ManyToMany
+__all__ = []
 
-from aybu.cms.lib.containers import Storage
-from aybu.cms.model.file import File, Image, Banner
-from aybu.cms.model.types import SHA1
-from aybu.cms.model.language import Language
-from aybu.cms.model.setting import SettingType, Setting
-from aybu.cms.model.user import User, Group
-from aybu.cms.model.view import View, ViewDescription
-from aybu.cms.model.graph import NodeInfo, Page,\
-                                   Section, ExternalLink, InternalLink,\
-                                   Node, Menu
-
-using_options_defaults(table_options=dict(mysql_engine="InnoDB"))
-options_defaults.update(dict(table_options=dict(mysql_engine="InnoDB")))
-
-__all__ = [
-    'Language', 'Setting', 'User', 'View',
-    'File', 'Image', 'Banner', 'SHA1', 'Keyword',
-    'SettingType', 'Group', 'ViewDescription', 'Keyword', 'NodeInfo',
-    'Page', 'Section', 'ExternalLink', 'InternalLink', 'Node', 'Menu'
-]
+log = getLogger(__name__)
 
 
-class Keyword(Entity):
-    name = Field(Unicode(64), primary_key=True)
-    used_in = ManyToMany("NodeInfo",
-                         tablename="node_infos_keywords",
-                         table_kwargs=dict(useexisting=True),
-                         onupdate="cascade", ondelete="cascade")
+node_infos_keywords = Table('node_infos_keywords',
+                            Base.metadata,
+                            Column('node_info_id',
+                                   Integer,
+                                   ForeignKey('node_infos.id',
+                                              onupdate="cascade",
+                                              ondelete="cascade")),
+                            Column('keyword_name',
+                                   Unicode(64),
+                                   ForeignKey('keywords.name',
+                                              onupdate="cascade",
+                                              ondelete="cascade"))
+                            )
 
-    using_options(tablename='keywords')
+class Keyword(Base):
 
-    def __str__(self):
-        return "<Keyword %s>" % (self.name)
+    __tablename__ = 'keywords'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
 
-    def __repr__(self):
-        return self.__str__()
+    name = Column(Unicode(64), primary_key=True)
+
+    used_by = relationship('NodeInfo',
+                           secondary=node_infos_keywords,
+                           backref=backref('keywords'))
 
 
-class Theme(Entity):
-    name = Field(Unicode(128), primary_key=True)
-    children = OneToMany('Theme')
-    # set cascade to "save-update" (the default is "save-update, merge", thus
-    # disabling the merge cascade which saves us one query while merging theme
-    # back from cache. Parent will be lazy loaded on access.
-    parent = ManyToOne('Theme', colname="parent_name", cascade="save-update",
-                       lazy=False)
+class Theme(Base):
 
-    using_options(tablename='themes')
+    __tablename__ = 'themes'
+    __table_args__ = ({'mysql_engine': 'InnoDB'})
 
-    def __str__(self):
-        return "<Theme '%s'>" % (self.name)
+    name = Column(Unicode(128), primary_key=True)
+    parent_name = Column(Integer, ForeignKey('themes.name'))
+    children = relationship('Theme',
+                            backref=backref('parent', remote_side=name))
 
-    def __repr__(self):
-        if self.parent:
-            return "<Theme '%s' (parent: %s)>" % (self.name, self.parent.name)
-        else:
-            return "<Theme '%s' (top-level)>" % (self.name)
-
-    def to_storage(self, children=True):
-        s = Storage(self.to_dict())
-        s.parent = self.parent.\
-                   to_storage(children=False) if self.parent else None
-        if children:
-                s.children = [c.to_storage() for c in self.children]
-        return s
