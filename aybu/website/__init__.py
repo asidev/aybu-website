@@ -52,11 +52,11 @@ def add_views(config):
                     view='aybu.website.views.sitemap')
 
     config.add_view(context='aybu.website.resources.NoLanguage',
-                    renderer='aybu.website:templates/template.mako',
+                    renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.my_view')
 
     config.add_view(context=HTTPNotFound,
-                    renderer='aybu.website:templates/template.mako',
+                    renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.show_not_found_error')
 
     return config
