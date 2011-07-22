@@ -5,6 +5,7 @@
 Copyright © 2010 Asidev s.r.l. - www.asidev.com
 """
 
+from aybu.website.models.base import Base
 from logging import getLogger
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -17,9 +18,6 @@ __all__ = ['Language']
 
 
 log = getLogger(__name__)
-
-
-Base = declarative_base()
 
 
 class Language(Base):
@@ -48,3 +46,8 @@ class Language(Base):
 
     def __eq__(self, other):
         return self.lang == other.lang and self.country == other.country
+
+    def get_by_lang(self, session, lang):
+        criterion = self.__class__.lang.ilike(lang)
+        return session.query(self.__class__).filter(criterion).first()
+

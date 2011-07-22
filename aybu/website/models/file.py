@@ -41,8 +41,6 @@ class File(Base):
 
 class Banner(File):
 
-    __tablename__ = 'banners'
-    __table_args__ = ({'mysql_engine': 'InnoDB'})
     __mapper_args__ = {'polymorphic_identity': 'banner'}
 
     full_size = None
@@ -97,8 +95,6 @@ class Image(File):
         >>> Image.full_size = (600, 600)
     """
 
-    __tablename__ = 'images'
-    __table_args__ = ({'mysql_engine': 'InnoDB'})
     __mapper_args__ = {'polymorphic_identity': 'image'}
 
     full_size = None

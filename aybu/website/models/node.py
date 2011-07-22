@@ -130,7 +130,7 @@ node_infos_images = Table('node_infos_images__files',
                                               ondelete="cascade")))
 
 
-node_infos_links = Table('node_infos_images__node_infos',
+node_infos_links = Table('node_infos_links__node_infos',
                             Base.metadata,
                             Column('inverse_id',
                                    Integer,
@@ -180,6 +180,9 @@ class NodeInfo(Base):
         return "<NodeInfo [%d] '%s' %s>" % (self.id, self.label.encode('utf8'),
                                             self.url)
 
+    def get_by_url(self, session, url):
+        criterion = self.__class__.url.ilike(url)
+        return session.query(self.__class__).filter(criterion).one()
 
 class Menu(Node):
     __mapper_args__ = {'polymorphic_identity': 'menu'}

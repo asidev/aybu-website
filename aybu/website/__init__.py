@@ -12,12 +12,15 @@ from sqlalchemy import engine_from_config
 def main(global_config, **settings):
 
     engine = engine_from_config(settings, 'sqlalchemy.')
+    # Set metadata for tables.
     Base.metadata.create_all(engine)
+    # Set Engine in Request factory.
+    # It is needed by Request objects to build Session.
     Request.set_db_engine(engine)
 
     config = Configurator(settings=settings)
 
-    # initialize babel
+    # I.nitialize babel
     config.add_translation_dirs('aybu.website:locale')
 
     config.include(add_routes)
@@ -32,12 +35,13 @@ def add_routes(config):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('robots', '/robots.txt')
     config.add_route('sitemap', '/sitemap.xml')
+    # Put URL dispatch uri before Traversal ones!!!
     config.add_route('root', '/*traverse', factory=get_root_resource)
-
-    return config
 
 
 def add_views(config):
+
+    # Views called after URL dispatch.
 
     config.add_view(route_name='favicon',
                     renderer='string',
@@ -51,6 +55,8 @@ def add_views(config):
                     renderer='string',
                     view='aybu.website.views.sitemap')
 
+    # Views called after Traversal.
+
     config.add_view(context='aybu.website.resources.NoLanguage',
                     renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.my_view')
@@ -59,11 +65,8 @@ def add_views(config):
                     renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.show_not_found_error')
 
-    return config
-
 
 def add_static_views(config):
 
     config.add_static_view('static', 'aybu.website:static')
 
-    return config
