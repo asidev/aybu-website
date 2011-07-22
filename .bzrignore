@@ -9,3 +9,4 @@ aybu_website.egg-info/SOURCES.txt
 aybu_website.egg-info/top_level.txt
 *.pyc
 *komodo*
+development.ini
