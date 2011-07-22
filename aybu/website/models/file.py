@@ -90,7 +90,6 @@ class Banner(File):
         cls.full_size = full
         cls.thumb_sizes = thumbs
 
-
     def save_file(self, handle):
         """ Called when saving source """
 

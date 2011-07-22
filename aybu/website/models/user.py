@@ -9,7 +9,7 @@ from logging import getLogger
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Unicode
-from sqlalchemy.orm import backref
+from sqlalchemy import Table
 from sqlalchemy.orm import relationship
 
 
@@ -29,8 +29,7 @@ users_groups = Table('users_groups',
                                    Unicode(32),
                                    ForeignKey('groups.name',
                                               onupdate="cascade",
-                                              ondelete="cascade"))
-                            )
+                                              ondelete="cascade")))
 
 
 class User(Base):
@@ -50,4 +49,3 @@ class Group(Base):
     __table_args__ = ({'mysql_engine': 'InnoDB'})
 
     name = Column(Unicode(32), primary_key=True)
-

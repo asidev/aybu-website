@@ -9,6 +9,7 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
+from sqlalchemy import Table
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
@@ -29,8 +30,8 @@ node_infos_keywords = Table('node_infos_keywords',
                                    Unicode(64),
                                    ForeignKey('keywords.name',
                                               onupdate="cascade",
-                                              ondelete="cascade"))
-                            )
+                                              ondelete="cascade")))
+
 
 class Keyword(Base):
 
@@ -53,4 +54,3 @@ class Theme(Base):
     parent_name = Column(Integer, ForeignKey('themes.name'))
     children = relationship('Theme',
                             backref=backref('parent', remote_side=name))
-

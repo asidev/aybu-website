@@ -5,22 +5,33 @@
 Copyright © 2010 Asidev s.r.l. - www.asidev.com
 """
 
-from elixir import Entity, Field, Unicode, Integer, Boolean
-from elixir import using_options, using_table_options
+from logging import getLogger
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
 from sqlalchemy import UniqueConstraint
+from sqlalchemy import Unicode
+from sqlalchemy.ext.declarative import declarative_base
+
+__all__ = []
 
 
-class Language(Entity):
-    id = Field(Integer, primary_key=True)
-    lang = Field(Unicode(2), required=True)
-    country = Field(Unicode(2), required=True)
-    enabled = Field(Boolean, default=True)
+log = getLogger(__name__)
 
-    using_table_options(UniqueConstraint('lang', 'country'))
-    using_options(tablename="languages")
 
-    def __str__(self):
-        return "<Language %s_%s>" % (self.lang, self.country)
+Base = declarative_base()
+
+
+class Language(Base):
+
+    __tablename__ = 'languages'
+    __table_args__ = (UniqueConstraint('lang', 'country'),
+                      {'mysql_engine': 'InnoDB'})
+
+    id = Column(Integer, primary_key=True)
+    lang = Column(Unicode(2), nullable=False)
+    country = Column(Unicode(2), nullable=False)
+    enabled = Column(Boolean, default=True)
 
     def __repr__(self):
         return "<Language %s_%s [%s]>" % (self.lang,

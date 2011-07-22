@@ -12,7 +12,6 @@ from sqlalchemy import String
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
 
@@ -31,7 +30,7 @@ class View(Base):
     fs_view_path = Column(String(255), unique=True)
 
 
-class ViewDescription(Entity):
+class ViewDescription(Base):
 
     __tablename__ = 'views_descriptions'
     __table_args__ = (UniqueConstraint('view_id', 'lang_id'),
