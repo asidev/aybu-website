@@ -3,7 +3,7 @@
 
 """ Copyright © 2010 Asidev s.r.l. - www.asidev.com """
 
-from aybu.website.models import Base
+from aybu.website.models.base import Base
 from aybu.website.models.types import SHA1
 from logging import getLogger
 from sqlalchemy import Column
@@ -40,7 +40,7 @@ class User(Base):
     username = Column(Unicode(255), primary_key=True)
     password = Column(SHA1(), nullable=False)
 
-    groups = relationship('Group', seondary=users_groups, backref='users')
+    groups = relationship('Group', secondary=users_groups, backref='users')
 
 
 class Group(Base):

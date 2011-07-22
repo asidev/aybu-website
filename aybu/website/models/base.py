@@ -3,20 +3,26 @@
 
 """ Copyright © 2010 Asidev s.r.l. - www.asidev.com """
 
-from aybu.website.models import Base
+
+
 from logging import getLogger
+
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import Table
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
 
-__all__ = []
+__all__ = ['Keyword', 'Theme']
 
 log = getLogger(__name__)
+
+
+Base = declarative_base()
 
 
 node_infos_keywords = Table('node_infos_keywords',

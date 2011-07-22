@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from aybu.website.request import Request
-from aybu.website.models import Base
+from aybu.website.models.base import Base
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound

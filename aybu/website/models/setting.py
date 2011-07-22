@@ -3,18 +3,18 @@
 
 """ Copyright © 2010 Asidev s.r.l. - www.asidev.com """
 
-from aybu.website.models import Base
+from aybu.website.models.base import Base
 from logging import getLogger
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
-from sqlalchemy.orm import backref
+from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
 
-__all__ = []
+__all__ = ['Setting', 'SettingType']
 
 log = getLogger(__name__)
 
@@ -39,7 +39,7 @@ class Setting(Base):
     value = Column(Unicode(512), nullable=False)
     raw_type = Column(String(8), nullable=False)
     ui_administrable = Column(Boolean, default=False)
-    
+
     type_name = Column(Integer, ForeignKey('setting_types.name',
                                            onupdate='cascade',
                                            ondelete='restrict'))

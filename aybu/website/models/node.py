@@ -14,11 +14,12 @@ from sqlalchemy import Table
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
-from aybu.website.models import Base
+from aybu.website.models.base import Base
 from aybu.website.models.language import Language
 
 
-__all__ = []
+__all__ = ['Node', 'Menu', 'Page', 'Section', 'ExternalLink', 'InternalLink',
+           'NodeInfo']
 
 
 log = getLogger(__name__)
@@ -153,7 +154,8 @@ class NodeInfo(Base):
     url_part = Column(Unicode(64), default=None)
 
     # This field is very useful but denormalize the DB
-    url = Column(Unicode(256), default=None)
+    url = Column(Unicode(512), default=None)
+
     node_id = Column(Integer, ForeignKey('nodes.id',
                                          onupdate='cascade',
                                          ondelete='cascade'), nullable=False)

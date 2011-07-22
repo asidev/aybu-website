@@ -10,7 +10,9 @@ import logging
 import os
 import PIL
 
-__all__ = []
+from aybu.website.models.base import Base
+
+__all__ = ['File', 'Image', 'Banner']
 
 log = logging.getLogger(__name__)
 
@@ -33,7 +35,7 @@ class File(Base):
 
     id = Column(Integer, primary_key=True)
     content_type = Column(Unicode(128))
-    name = Column(Unicode(128), required=True)
+    name = Column(Unicode(128), nullable=False)
     size = Column(Integer)
 
 
@@ -65,7 +67,7 @@ class Banner(File):
                 handle = handle.resize(self.full_size)
 
             handle.save(self.path)
-        
+
     def __repr__(self):
         self.setup_paths()
         return "<Banner %d at %s : %s>" % (self.id, self.path, self.url)

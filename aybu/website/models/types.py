@@ -6,6 +6,8 @@ import sqlalchemy.types as types
 
 from hashlib import sha1
 
+__all__ = ['SHA1', 'Crypt']
+
 
 class SHA1(types.TypeDecorator):
     """ This class model an encrypted (and fixed) string. """
