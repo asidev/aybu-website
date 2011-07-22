@@ -29,7 +29,7 @@ entry_points = """\
 [paste.app_factory]
     main = aybu.website:main
 [paste.paster_command]
-    aybu-setup = aybu.website.websetup:WebSetupCommand
+    aybu-setup = aybu.website.lib.command:SetupApp
 """
 
 paster_plugins = ['pyramid']

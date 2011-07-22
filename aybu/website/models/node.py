@@ -231,7 +231,8 @@ class InternalLink(Node):
     __mapper_args__ = {'polymorphic_identity': 'internallink'}
 
     linked_to_id = Column(Integer, ForeignKey('nodes.id',
-                                         onupdate='cascade',
-                                         ondelete='cascade'), nullable=False)
+                                              onupdate='cascade',
+                                              ondelete='cascade'), 
+                          nullable=False)
 
     linked_to = relationship('Page', backref='translations')
