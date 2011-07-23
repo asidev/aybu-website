@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
 from aybu.website.models.file import Banner
 from aybu.website.models.file import File
 from aybu.website.models.file import Image
+"""
 from aybu.website.models.language import Language
+"""
 from aybu.website.models.node import ExternalLink
 from aybu.website.models.node import InternalLink
 from aybu.website.models.node import Menu
@@ -12,60 +15,92 @@ from aybu.website.models.node import Node
 from aybu.website.models.node import NodeInfo
 from aybu.website.models.node import Page
 from aybu.website.models.node import Section
+"""
 from aybu.website.models.setting import Setting
 from aybu.website.models.setting import SettingType
+"""
 from aybu.website.models.theme import Keyword
 from aybu.website.models.theme import Theme
 from aybu.website.models.user import Group
 from aybu.website.models.user import User
 from aybu.website.models.view import View
 from aybu.website.models.view import ViewDescription
+"""
 from aybu.website.models.base import Base
-from sqlalchemy import create_engine
+from sqlalchemy import engine_from_config
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
 
-def populate(engine, echo = False, drop_all = False):
+def engine_from_config_parser(config):
 
-    engine = create_engine(engine, echo=bool(echo))
+    options = {}
 
-    if drop_all:
-        Base.metadata.drop_all(engine)
+    for section in config.sections():
+        for option in config.options(section):
+            if option.startswith('sqlalchemy.'):
+                options[option] = config.get(section, option)
 
+    return engine_from_config(options)
+
+
+def populate(config):
+
+    engine = engine_from_config_parser(config)
+    session = scoped_session(sessionmaker())
+    session.configure(bind=engine)
+
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
-    languages = [{'id': 1, 'lang': u'it', 'country': u'IT', 'enabled': True},
-                 {'id': 2, 'lang': u'en', 'country': u'GB', 'enabled': True},
-                 {'id': 3, 'lang': u'es', 'country': u'ES', 'enabled': True},
-                 {'id': 4, 'lang': u'de', 'country': u'DE', 'enabled': False},
-                 {'id': 5, 'lang': u'fr', 'country': u'FR', 'enabled': False},
-                 {'id': 6, 'lang': u'ru', 'country': u'RU', 'enabled': False},
-                 {'id': 7, 'lang': u'zh', 'country': u'CN', 'enabled': False}]
+    languages = {}
+    for language in [Language(id=1, lang=u'it', country=u'IT', enabled=True),
+                     Language(id=2, lang=u'en', country=u'GB', enabled=True),
+                     Language(id=3, lang=u'es', country=u'ES', enabled=True),
+                     Language(id=4, lang=u'de', country=u'DE', enabled=False),
+                     Language(id=5, lang=u'fr', country=u'FR', enabled=False),
+                     Language(id=6, lang=u'ru', country=u'RU', enabled=False),
+                     Language(id=7, lang=u'zh', country=u'CN', enabled=False)]:
 
-    for params in languages:
-        Language(**params)
+        session.add(language)
+        languages[language.id] = language
 
+    setting_types = {}
+    for setting_type in [SettingType(name=u'txt'),
+                         SettingType(name=u'html'),
+                         SettingType(name=u'image'),
+                         SettingType(name=u'file'),
+                         SettingType(name=u'checkbox')]:
+
+        session.add(setting_type)
+        setting_types[setting_type.name] = setting_type
     """
-    setting_types = [
-        #(name)
-        {'name': u'txt'},
-        {'name': u'html'},
-        {'name': u'image'},
-        {'name': u'file'},
-        {'name': u'checkbox'}
-    ]
-    SettingType.table.insert().execute(setting_types)
-
-    settings = [
-        #(name, value, raw_type, ui_administrable, type_name)
-        {'name': u'site_title', 'value': u'Asidev CMS', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'theme_name', 'value': u'moma', 'raw_type': u'unicode', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'footer_info', 'value': u'<strong>Asidev s.r.l.</strong> © 2008', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'html'},
-        {'name': u'reseller_name', 'value': u'VB Site', 'raw_type': u'unicode', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'reseller_link', 'value': u'http://www.vbsite.it', 'raw_type': u'unicode', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'template_levels', 'value': u'3', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'main_menu_levels', 'value': u'2', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'max_menus', 'value': u'1', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'max_languages', 'value': u'3', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
+    settings = {}
+    for setting in [Setting(name=u'site_title', value=u'Asidev CMS',
+                            raw_type=u'unicode', ui_administrable=True,
+                            type_name=u'txt'),
+                    Setting(name=u'theme_name', value=u'moma',
+                            raw_type=u'unicode', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'footer_info',
+                            value=u'<strong>Asidev s.r.l.</strong> © 2008',
+                            raw_type=u'unicode', ui_administrable=True,
+                            type_name=u'html'),
+                    Setting(name=u'reseller_name', value=u'VB Site',
+                            raw_type=u'unicode', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'reseller_link',
+                            value=u'http://www.vbsite.it', raw_type=u'unicode',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'template_levels', value=u'3',
+                            raw_type=u'int', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'main_menu_levels', value=u'2', 
+                            raw_type=u'int', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'max_menus', value=u'1', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'max_languages', value=u'3', raw_type=u'int', 'ui_administrable': False, 'type_name': u'txt'},
         {'name': u'image_full_size', 'value': u'600', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
         {'name': u'max_pages', 'value': u'10', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
         {'name': u'contact_dst_email_1', 'value': u'l.frosini@asidev.com', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
@@ -92,7 +127,8 @@ def populate(engine, echo = False, drop_all = False):
         {'name': u'twitter', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'}
     ]
     Setting.table.insert().execute(settings)
-
+    """
+    """
     asidev = User(id=1, username=u'info@asidev.com', password=str('cambiami'))
 
     g = Group(name=u'admin')
@@ -172,3 +208,5 @@ def populate(engine, echo = False, drop_all = False):
     query = "UPDATE users SET password='8593d55f4d3044f9a1a84f75a81bb9945a10c095' WHERE username='info@asidev.com';"
     metadata.bind.execute(query)
     """
+
+    session.commit()

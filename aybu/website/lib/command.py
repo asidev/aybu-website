@@ -71,62 +71,11 @@ class SetupApp(Command):
         try:
             option = config.get('commands', 'setup-app')
             # Load a callable using 'setup-app' option as fully qualified name.
-            setup_app = DottedNameResolver(None).resolve(option)
 
         except Exception as e:
 
             raise ValueError('Unable to find any command ' + \
                              'to setup the application ')
 
-        args = []
-
-        try:
-
-            for arg in config.get('commands',
-                                  'setup-app-args').replace(' ', '').split(','):
-
-                if not arg:
-                    continue
-
-                start = arg.find('[')
-                stop = arg.find(']')
-
-                if start >= 0 and stop >= 0:
-
-                    section = arg[start+1:stop]
-                    arg = arg[stop+1:]
-
-                else:
-
-                    section = None
-
-                try:
-                    args.append(config.get(section, arg))
-
-                except Exception as e:
-
-                    found = False
-                    # Search 'arg' in all sections of the configuration file.
-                    for section in config.sections():
-
-                        for option in config.options(section):
-
-                            if option == arg:
-                                args.append(config.get(section, option))
-                                found = True
-                                break
-
-                        if found:
-                            break
-
-                    if not found:
-                        msg = 'Unable to find argument: %s, ' + \
-                              'in the given configuration file.' % arg
-                        raise ValueError(msg)
-
-        except Exception as e:
-
-           # Call the setup_app callable without any arguments.
-           args = []
-
-        setup_app(*args)
+        setup_app = DottedNameResolver(None).resolve(option)
+        setup_app(config)

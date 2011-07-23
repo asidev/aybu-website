@@ -38,6 +38,7 @@ class Language(Base):
                                                     enabled else "disabled")
 
     def __setattr__(self, attr, value):
+        log.debug('Language setattr')
         if attr == u"lang":
             value = value.lower()
         elif attr == u"country":

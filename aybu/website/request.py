@@ -4,6 +4,8 @@
 import logging
 from pyramid.request import Request as BaseRequest
 from pyramid.i18n import get_localizer, TranslationStringFactory
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
 
 
 class Request(BaseRequest):
