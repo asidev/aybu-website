@@ -232,37 +232,93 @@ def populate(config):
     session.add(external_link)
     external_links = {external_link.id: external_link}
 
-    """
-    NodeInfo = [
-        {'label': u'Home', 'title': u'Pagina Principale', 'url_part': u'index', 'content': u'<h2>Pagina Principale</h2>', 'lang_id': 1, 'node_id': 2},
-        {'label': u'Home', 'title': u'Home Page', 'url_part': u'index', 'content': u'<h2>Home Page</h2>', 'lang_id': 2, 'node_id': 2},
-        {'label': u'Home', 'title': u'Primera Pagina', 'url_part': u'index', 'content': u'<h2>Primera Pagina</h2>', 'lang_id': 3, 'node_id': 2},
-        {'label': u'Contatti', 'title': u'Contatti', 'url_part': u'contatti', 'content': u'<h2>Contatti</h2>', 'lang_id': 1, 'node_id': 3},
-        {'label': u'Contacts', 'title': u'Contacts', 'url_part': u'contacts', 'content': u'<h2>Contacts</h2>', 'lang_id': 2, 'node_id': 3},
-        {'label': u'Contacto', 'title': u'Contacto', 'url_part': u'contacto', 'content': u'<h2>Contacto</h2>', 'lang_id': 3, 'node_id': 3},
-        {'label': u'Azienda', 'title': u'Azienda', 'url_part': u'azienda', 'content':None, 'lang_id': 1, 'node_id': 4},
-        {'label': u'Company', 'title': u'Company', 'url_part': u'company', 'content':None, 'lang_id': 2, 'node_id': 4},
-        {'label': u'Empresa', 'title': u'Empresa', 'url_part': u'empresa', 'content':None, 'lang_id': 3, 'node_id': 4},
-        {'label': u'Chi Siamo', 'title': u'Chi Siamo', 'url_part': u'chi_siamo', 'content': u'<h2>Chi Siamo</h2>', 'lang_id': 1, 'node_id': 5},
-        {'label': u'About Us', 'title': u'About Us', 'url_part': u'about_us', 'content': u'<h2>About Us</h2>', 'lang_id': 2, 'node_id': 5},
-        {'label': u'Quiénes somos', 'title': u'Quiénes somos', 'url_part': u'quienes_somos', 'content': u'<h2>Quiénes somos</h2>', 'lang_id': 3, 'node_id': 5},
-        {'label': u'La nostra storia', 'title': u'La nostra storia', 'url_part': u'la_nostra_storia', 'content': u'<h2>La nostra storia</h2>', 'lang_id': 1, 'node_id': 6},
-        {'label': u'Our History', 'title': u'Our History', 'url_part': u'our_history', 'content': u'<h2>Our History</h2>', 'lang_id': 2, 'node_id': 6},
-        {'label': u'Nuestra Historia', 'title': u'Nuestra Historia', 'url_part': u'nuestra_historia', 'content': u'<h2>Nuestra Historia</h2>', 'lang_id': 3, 'node_id': 6},
-        {'label': u'Collegamento Interno', 'title': None, 'url_part': None, 'content':None, 'lang_id': 1, 'node_id': 7},
-        {'label': u'Internal Link', 'title': None, 'url_part': None, 'content':None, 'lang_id': 2, 'node_id': 7},
-        {'label': u'Conexión Interna', 'title': None, 'url_part': None, 'content':None, 'lang_id': 3, 'node_id': 7},
-        {'label': u'Sviluppatore', 'title': None, 'url_part': None, 'content':None, 'lang_id': 1, 'node_id': 8},
-        {'label': u'Developer', 'title': None, 'url_part': None, 'content':None, 'lang_id': 2, 'node_id': 8},
-        {'label': u'Desarrollador', 'title': None, 'url_part': None, 'content':None, 'lang_id': 3, 'node_id': 8},
-        {'label': u'Soluzioni', 'title': u'Soluzioni', 'url_part': u'soluzioni', 'content': u'<h2>Soluzioni</h2>', 'lang_id': 1, 'node_id': 9},
-        {'label': u'Solutions', 'title': u'Solutions', 'url_part': u'solutions', 'content': u'<h2>Solutions</h2>', 'lang_id': 2, 'node_id': 9},
-        {'label': u'Solución', 'title': u'Solución', 'url_part': u'solucion', 'content': u'<h2>Solución</h2>', 'lang_id': 3, 'node_id': 9},
-        {'label': u'PEC', 'title': u'PEC', 'url_part': u'pec', 'content': u'<h2>P.E.C.</h2>', 'lang_id': 1, 'node_id': 10},
-        {'label': u'ECM', 'title': u'ECM', 'url_part': u'ecm', 'content': u'<h2>Electronic Certified Mail</h2>', 'lang_id': 2, 'node_id': 10},
-        {'label': u'CEC', 'title': u'CEC', 'url_part': u'cec', 'content': u'<h2>Correo Electronico Certifigado</h2>', 'lang_id': 3, 'node_id': 10},
-    ]
-    """
+    nodes_info = {}
+    for info in [NodeInfo(id=1, label=u'Home', title=u'Pagina Principale', 
+                          url_part=u'index',
+                          content=u'<h2>Pagina Principale</h2>',
+                          lang=languages[1], node=pages[2]),
+                 NodeInfo(id=2, label=u'Home', title=u'Home Page',
+                          url_part=u'index', content=u'<h2>Home Page</h2>', 
+                          lang=languages[2], node=pages[2]),
+                 NodeInfo(id=3, label=u'Home', title=u'Primera Pagina',
+                          url_part=u'index', content=u'<h2>Primera Pagina</h2>',
+                          lang=languages[3], node=pages[2]),
+                 NodeInfo(id=4, label=u'Contatti', title=u'Contatti',
+                          url_part=u'contatti', content=u'<h2>Contatti</h2>',
+                          lang=languages[1], node=pages[3]),
+                 NodeInfo(id=5, label=u'Contacts', title=u'Contacts',
+                          url_part=u'contacts', content=u'<h2>Contacts</h2>',
+                          lang=languages[2], node=pages[3]),
+                 NodeInfo(id=6, label=u'Contacto', title=u'Contacto',
+                          url_part=u'contacto', content=u'<h2>Contacto</h2>',
+                          lang=languages[3], node=pages[3]),
+                 NodeInfo(id=7, label=u'Azienda', title=u'Azienda',
+                          url_part=u'azienda', lang=languages[1],
+                          node=sections[4]),
+                 NodeInfo(id=8, label=u'Company', title=u'Company',
+                          url_part=u'company', lang=languages[2],
+                          node=sections[4]),
+                 NodeInfo(id=9, label=u'Empresa', title=u'Empresa',
+                          url_part=u'empresa', lang=languages[3],
+                          node=sections[4]),
+                 NodeInfo(id=10, label=u'Chi Siamo', title=u'Chi Siamo',
+                          url_part=u'chi_siamo', content=u'<h2>Chi Siamo</h2>',
+                          lang=languages[1], node=pages[5]),
+                 NodeInfo(id=11, label=u'About Us', title=u'About Us',
+                          url_part=u'about_us', content=u'<h2>About Us</h2>',
+                          lang=languages[2], node=pages[5]),
+                 NodeInfo(id=12, label=u'Quiénes somos', title=u'Quiénes somos',
+                          url_part=u'quienes_somos',
+                          content=u'<h2>Quiénes somos</h2>',
+                          lang=languages[3], node=pages[5]),
+                 NodeInfo(id=13, label=u'La nostra storia', 
+                          title=u'La nostra storia',
+                          url_part=u'la_nostra_storia',
+                          content=u'<h2>La nostra storia</h2>',
+                          lang=languages[1], node=pages[6]),
+                 NodeInfo(id=14, label=u'Our History', title=u'Our History',
+                          url_part=u'our_history',
+                          content=u'<h2>Our History</h2>',
+                          lang=languages[2], node=pages[6]),
+                 NodeInfo(id=15, label=u'Nuestra Historia',
+                          title=u'Nuestra Historia',
+                          url_part=u'nuestra_historia',
+                          content=u'<h2>Nuestra Historia</h2>', 
+                          lang=languages[3], node=pages[6]),
+                 NodeInfo(id=16, label=u'Collegamento Interno', 
+                          lang=languages[1], node=internal_links[7]),
+                 NodeInfo(id=17, label=u'Internal Link',lang=languages[2],
+                          node=internal_links[7]),
+                 NodeInfo(id=18, label=u'Conexión Interna', lang=languages[3],
+                          node=internal_links[7]),
+                 NodeInfo(id=19, label=u'Sviluppatore', lang=languages[1],
+                          node=external_links[8]),
+                 NodeInfo(id=20, label=u'Developer', lang=languages[2],
+                          node=external_links[8]),
+                 NodeInfo(id=21, label=u'Desarrollador', lang=languages[3],
+                          node=external_links[8]),
+                 NodeInfo(id=22, label=u'Soluzioni', title=u'Soluzioni',
+                          url_part=u'soluzioni', content=u'<h2>Soluzioni</h2>',
+                          lang=languages[1], node=pages[9]),
+                 NodeInfo(id=23, label=u'Solutions', title=u'Solutions',
+                          url_part=u'solutions', content=u'<h2>Solutions</h2>',
+                          lang=languages[2], node=pages[9]),
+                 NodeInfo(id=24, label=u'Solución', title=u'Solución',
+                          url_part=u'solucion', content=u'<h2>Solución</h2>',
+                          lang=languages[3], node=pages[9]),
+                 NodeInfo(id=25, label=u'PEC', title=u'PEC', url_part=u'pec',
+                          content=u'<h2>P.E.C.</h2>', lang=languages[1],
+                          node=pages[10]),
+                 NodeInfo(id=26, label=u'ECM', title=u'ECM', url_part=u'ecm',
+                          content=u'<h2>Electronic Certified Mail</h2>',
+                          lang=languages[2], node=pages[10]),
+                 NodeInfo(id=27, label=u'CEC', title=u'CEC', url_part=u'cec',
+                          content=u'<h2>Correo Electronico Certifigado</h2>',
+                          lang=languages[3], node=pages[10])]:
+
+        session.add(info)
+        nodes_info[info.id] = info
+
     themes = {}
     for theme in [Theme(name=u'base', parent=None),
                   Theme(name=u'uffizi', parent=None),
@@ -273,5 +329,27 @@ def populate(config):
 
     themes['uffizi'].parent = themes['base']
     themes['moma'].parent = themes['uffizi']
+
+    session.flush()
+
+    # Build the NodeInfo.url for each NodeInfo object.
+    for info in nodes_info.itervalues():
+
+        if info.url_part is None:
+            continue
+
+        url_parts = [info.url_part]
+
+        node = info.node
+        while not node.parent is None:
+            node = node.parent
+            for node_info in node.translations:
+                if node_info.lang == info.lang:
+                    url_parts.append(node_info.url_part)
+                    break
+
+        url_parts.reverse()
+
+        info.url = '/' + '/'.join(url_parts) + '.html'
 
     session.commit()
