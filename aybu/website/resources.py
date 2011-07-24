@@ -29,7 +29,9 @@ def get_root_resource(request):
     if len(url_parts) == 1:
         # URL is like '/{lang}'.
         log.debug('Get Context by Language %s.', url_parts[0][0])
-        return Language.get_by_lang(request.db_session, url_parts[0][0])
+        url_parts[0] = (url_parts[0][0],
+                        Language.get_by_lang(request.db_session,
+                                             url_parts[0][0]))
 
     else:
         # URL is like '/{lang}/{node}/[...]/{page}[.ext]
@@ -41,11 +43,12 @@ def get_root_resource(request):
 
     # Create the resources tree.
     # The last element in resources tree is the request context.
-    tmp = root = {}
+    tmp = root = Resource()
     for url_part, resource in url_parts:
         tmp[url_part] = resource
         tmp = tmp[url_part]
-        key = url_part
+
+    log.debug('The root resource is: %s', root)
 
     return root
 

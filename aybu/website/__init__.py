@@ -7,6 +7,7 @@ from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
 from sqlalchemy import engine_from_config
+from sqlalchemy.orm.exc import NoResultFound
 
 
 def main(global_config, **settings):
@@ -35,7 +36,7 @@ def add_routes(config):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('robots', '/robots.txt')
     config.add_route('sitemap', '/sitemap.xml')
-    # Put URL dispatch uri before Traversal ones!!!
+    # Put URL dispatch configuration statements before Traversal ones!!!
     config.add_route('root', '/*traverse', factory=get_root_resource)
 
 
@@ -57,13 +58,35 @@ def add_views(config):
 
     # Views called after Traversal.
 
-    config.add_view(context='aybu.website.resources.NoLanguage',
+    config.add_view(route_name='root',
+                    context='aybu.website.resources.NoLanguage',
                     renderer='aybu.website:templates/test.mako',
-                    view='aybu.website.views.my_view')
+                    view='aybu.website.views.choose_default_language')
+
+    config.add_view(route_name='root',
+                    context='aybu.website.models.Language',
+                    renderer='aybu.website:templates/test.mako',
+                    view='aybu.website.views.redirect_to_homepage')
+
+    config.add_view(route_name='root',
+                    context='aybu.website.models.NodeInfo',
+                    renderer='aybu.website:templates/test.mako',
+                    view='aybu.website.views.show_page')
+
+    config.add_view(route_name='root',
+                    context=None,
+                    renderer='aybu.website:templates/test.mako',
+                    view='aybu.website.views.show_not_found_error')
+
+    config.add_view(route_name='root',
+                    context=NoResultFound,
+                    renderer='aybu.website:templates/test.mako',
+                    view='aybu.website.views.show_not_found_error')
 
     config.add_view(context=HTTPNotFound,
                     renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.show_not_found_error')
+
 
 
 def add_static_views(config):
