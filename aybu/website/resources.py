@@ -47,10 +47,6 @@ def get_root_resource(request):
         tmp = tmp[url_part]
         key = url_part
 
-    log.debug('Resource is: %s', root)
-    log.debug('Pivot is: %s', tmp)
-    log.debug('Key is: %s', key)
-
     return root
 
 
