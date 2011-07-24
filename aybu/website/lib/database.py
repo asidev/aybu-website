@@ -348,8 +348,8 @@ def populate(config):
                     url_parts.append(node_info.url_part)
                     break
 
+        url_parts.append(info.lang.lang)
         url_parts.reverse()
-
         info.url = '/' + '/'.join(url_parts) + '.html'
 
     session.commit()
