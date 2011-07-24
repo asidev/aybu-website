@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+from aybu.website.models.base import Base
 from aybu.website.models.file import Banner
 from aybu.website.models.file import File
 from aybu.website.models.file import Image
-"""
 from aybu.website.models.language import Language
-"""
 from aybu.website.models.node import ExternalLink
 from aybu.website.models.node import InternalLink
 from aybu.website.models.node import Menu
@@ -15,18 +13,14 @@ from aybu.website.models.node import Node
 from aybu.website.models.node import NodeInfo
 from aybu.website.models.node import Page
 from aybu.website.models.node import Section
-"""
 from aybu.website.models.setting import Setting
 from aybu.website.models.setting import SettingType
-"""
 from aybu.website.models.theme import Keyword
 from aybu.website.models.theme import Theme
 from aybu.website.models.user import Group
 from aybu.website.models.user import User
 from aybu.website.models.view import View
 from aybu.website.models.view import ViewDescription
-"""
-from aybu.website.models.base import Base
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
@@ -74,7 +68,7 @@ def populate(config):
 
         session.add(setting_type)
         setting_types[setting_type.name] = setting_type
-    """
+
     settings = {}
     for setting in [Setting(name=u'site_title', value=u'Asidev CMS',
                             raw_type=u'unicode', ui_administrable=True,
@@ -100,71 +94,146 @@ def populate(config):
                             type_name=u'txt'),
                     Setting(name=u'max_menus', value=u'1', raw_type=u'int',
                             ui_administrable=False, type_name=u'txt'),
-                    Setting(name=u'max_languages', value=u'3', raw_type=u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'image_full_size', 'value': u'600', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'max_pages', 'value': u'10', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'contact_dst_email_1', 'value': u'l.frosini@asidev.com', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'banner', 'value': u'banner.png', 'raw_type': u'unicode', 'ui_administrable': False, 'type_name': u'image'},
-        {'name': u'banner_width', 'value': u'940', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'banner_height', 'value': u'320', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'logo', 'value': u'logo.png', 'raw_type': u'unicode', 'ui_administrable': False, 'type_name': u'image'},
-        {'name': u'logo_width', 'value': u'340', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'logo_height', 'value': u'120', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'debug', 'value': u'True', 'raw_type': u'bool', 'ui_administrable': False, 'type_name': u'checkbox'},
-        {'name': u'max_files', 'value': u'10', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'max_images', 'value': u'20', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'proxy_enabled', 'value': u'False', 'raw_type': u'bool', 'ui_administrable': False, 'type_name': u'checkbox'},
-        {'name': u'proxy_address', 'value': u'127.0.0.1', 'raw_type': u'str', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'proxy_port', 'value': u'80', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'proxy_purge_timeout', 'value': u'2', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'page_expire_sec', 'value': u'300', 'raw_type': u'int', 'ui_administrable': False, 'type_name': u'txt'},
-        {'name': u'head_info', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'google_analytics_code', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'addthis', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'addthis_url', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'disqus', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'facebook', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'},
-        {'name': u'twitter', 'value': u'', 'raw_type': u'unicode', 'ui_administrable': True, 'type_name': u'txt'}
-    ]
-    Setting.table.insert().execute(settings)
+                    Setting(name=u'max_languages', value=u'3', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'image_full_size', value=u'600',
+                            raw_type=u'int', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'max_pages', value=u'10', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'contact_dst_email_1',
+                            value=u'l.frosini@asidev.com', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'banner', value=u'banner.png',
+                            raw_type=u'unicode', ui_administrable=False,
+                            type_name=u'image'),
+                    Setting(name=u'banner_width', value=u'940',
+                            raw_type=u'int', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'banner_height', value=u'320',
+                            raw_type=u'int', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'logo', value=u'logo.png',
+                            raw_type=u'unicode', ui_administrable=False,
+                            type_name=u'image'),
+                    Setting(name=u'logo_width', value=u'340', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'logo_height', value=u'120', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'debug', value=u'True', raw_type=u'bool',
+                            ui_administrable=False, type_name=u'checkbox'),
+                    Setting(name=u'max_files', value=u'10', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'max_images', value=u'20', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'proxy_enabled', value=u'False',
+                            raw_type=u'bool', ui_administrable=False,
+                            type_name=u'checkbox'),
+                    Setting(name=u'proxy_address', value=u'127.0.0.1',
+                            raw_type=u'str', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'proxy_port', value=u'80', raw_type=u'int',
+                            ui_administrable=False, type_name=u'txt'),
+                    Setting(name=u'proxy_purge_timeout', value=u'2',
+                            raw_type=u'int', ui_administrable=False, 
+                            type_name=u'txt'),
+                    Setting(name=u'page_expire_sec', value=u'300',
+                            raw_type=u'int', ui_administrable=False,
+                            type_name=u'txt'),
+                    Setting(name=u'head_info', value=u'', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'google_analytics_code', value=u'',
+                            raw_type=u'unicode', ui_administrable=True,
+                            type_name=u'txt'),
+                    Setting(name=u'addthis', value=u'', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'addthis_url', value=u'', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'disqus', value=u'', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'facebook', value=u'', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'twitter', value=u'', raw_type=u'unicode',
+                            ui_administrable=True, type_name=u'txt')]:
+
+        session.add(setting)
+        settings[setting.name] = setting
+
+    user = User(username=u'info@asidev.com', password=str('cambiami'))
+    session.add(user)
+    users = {user.username: user}
+
+    group = Group(name=u'admin')
+    group.users.append(user)
+    session.add(group)
+    groups = {group.name: group}
+
+
+    views = {}
+    for view in [View(id=1, name=u'GENERIC', 
+                      fs_view_path='/pages/generic_content.mako'),
+                 View(id=2, name=u'CONTACTS', 
+                      fs_view_path='/pages/contacts.mako')]:
+
+        session.add(view)
+        views[view.id] = view
+
+    views_descriptions = {}
+    for item in [ViewDescription(id=1,
+                                 description=u'Pagina di contenuto generico',
+                                 view=views[1], language=languages[1]),
+                 ViewDescription(id=2, description=u'Generic content page',
+                                 view=views[1], language=languages[2]),
+                 ViewDescription(id=3,
+                                 description=u'Pagina con form di contatto',
+                                 view=views[2], language=languages[1]),
+                 ViewDescription(id=4, description=u'Contact form page',
+                                 view=views[2], language=languages[2])]:
+
+        session.add(item)
+        views_descriptions[item.id] = item
+
+    menus = {}
+    for menu in [Menu(id=1, parent=None, weight=1),
+                 Menu(id=11, parent=None, weight=2)]:
+
+        session.add(menu)
+        menus[menu.id] = menu
+
+    pages = {}
+    for page in [Page(id=2, parent=menus[1], weight=1, view=views[1]),
+                 Page(id=3, parent=menus[1], weight=3, view=views[2]),
+                 Page(id=9, parent=menus[1], weight=6, view=views[1])]:
+
+        session.add(page)
+        pages[page.id] = page
+
+    section = Section(id=4, parent=menus[1], weight=2)
+    session.add(section)
+    sections = {4: section}
+
+    for page in [Page(id=5, parent=sections[4], weight=1, view=views[1]),
+                 Page(id=6, parent=sections[4], weight=2, view=views[1])]:
+
+        session.add(page)
+        pages[page.id] = page
+
+    internal_link = InternalLink(id=7,
+                                 parent=menus[1], weight=4, linked_to=pages[3])
+    session.add(internal_link)
+    internal_links = {internal_link.id: internal_link}
+
+    page = Page(id=10, parent=pages[9], weight=1, view=views[1])
+    session.add(page)
+    pages[page.id] = page
+
+    external_link = ExternalLink(id=8, parent=menus[1], weight=5, 
+                                 url=u'http://www.asidev.com')
+    session.add(external_link)
+    external_links = {external_link.id: external_link}
+
     """
-    """
-    asidev = User(id=1, username=u'info@asidev.com', password=str('cambiami'))
-
-    g = Group(name=u'admin')
-    g.users.append(asidev)
-
-    views = [
-        {'id': 1, 'name': u'GENERIC', 'fs_view_path': '/pages/generic_content.mako'},
-        {'id': 2, 'name': u'CONTACTS', 'fs_view_path': '/pages/contacts.mako'}
-    ]
-    View.table.insert().execute(views)
-
-    views_descriptions = [
-        {'id': 1, 'description': u'Pagina di contenuto generico', 'view_id': 1, 'lang_id': 1},
-        {'id': 2, 'description': u'Generic content page', 'view_id': 1, 'lang_id': 2},
-        {'id': 3, 'description': u'Pagina con form di contatto', 'view_id': 2, 'lang_id': 1},
-        {'id': 4, 'description': u'Contact form page', 'view_id': 2, 'lang_id': 2}
-    ]
-    ViewDescription.table.insert().execute(views_descriptions)
-
-    nodes = [
-        # (id, parent_id, weight, row_type)
-        {'id': 1, 'parent_id': None, 'weight': 1, 'row_type': 'menu', 'view_id': None, 'url': None, 'linked_to_id': None},  # Menu Principale
-        {'id': 2, 'parent_id': 1, 'weight': 1, 'row_type': 'page', 'view_id': 1, 'url': None, 'linked_to_id': None},  # Home
-        {'id': 3, 'parent_id': 1, 'weight': 3, 'row_type': 'page', 'view_id': 2, 'url': None, 'linked_to_id': None},  # Contatti
-        {'id': 4, 'parent_id': 1, 'weight': 2, 'row_type': 'section', 'view_id': None, 'url': None, 'linked_to_id': None},   # Azienda
-        {'id': 5, 'parent_id': 4, 'weight': 1, 'row_type': 'page', 'view_id': 1, 'url': None, 'linked_to_id': None},  # Chi Siamo
-        {'id': 6, 'parent_id': 4, 'weight': 2, 'row_type': 'page', 'view_id': 1, 'url': None, 'linked_to_id': None},  # La nostra Storia
-        {'id': 7, 'parent_id': 1, 'weight': 4, 'row_type': 'internallink', 'view_id': None, 'url': None, 'linked_to_id': 3},  # Link -> Contatti
-        {'id': 8, 'parent_id': 1, 'weight': 5, 'row_type': 'externallink', 'view_id': None, 'url': 'http://www.asidev.com', 'linked_to_id': None},  # ExtLink
-        {'id': 9, 'parent_id': 1, 'weight': 6, 'row_type': 'page', 'view_id': 1, 'url': None, 'linked_to_id': None},  # Soluzioni
-        {'id': 10, 'parent_id': 9, 'weight': 1, 'row_type': 'page', 'view_id': 1, 'url': None, 'linked_to_id': None},  # PEC
-        {'id': 11, 'parent_id': None, 'weight': 2, 'row_type': 'menu', 'view_id': None, 'url': None, 'linked_to_id': None}  # Pagine Orfane
-    ]
-    Node.table.insert().execute(nodes)
-
-    pages = [
+    NodeInfo = [
         {'label': u'Home', 'title': u'Pagina Principale', 'url_part': u'index', 'content': u'<h2>Pagina Principale</h2>', 'lang_id': 1, 'node_id': 2},
         {'label': u'Home', 'title': u'Home Page', 'url_part': u'index', 'content': u'<h2>Home Page</h2>', 'lang_id': 2, 'node_id': 2},
         {'label': u'Home', 'title': u'Primera Pagina', 'url_part': u'index', 'content': u'<h2>Primera Pagina</h2>', 'lang_id': 3, 'node_id': 2},
@@ -193,20 +262,16 @@ def populate(config):
         {'label': u'ECM', 'title': u'ECM', 'url_part': u'ecm', 'content': u'<h2>Electronic Certified Mail</h2>', 'lang_id': 2, 'node_id': 10},
         {'label': u'CEC', 'title': u'CEC', 'url_part': u'cec', 'content': u'<h2>Correo Electronico Certifigado</h2>', 'lang_id': 3, 'node_id': 10},
     ]
-    NodeInfo.table.insert().execute(pages)
-
-    themes = [
-        #(name, parent_name)
-        {'name': u'base', 'parent_name': None},
-        {'name': u'uffizi', 'parent_name': 'base'},
-        {'name': u'moma', 'parent_name': u'uffizi'},
-    ]
-    Theme.table.insert().execute(themes)
-
-    dbsession.commit()
-
-    query = "UPDATE users SET password='8593d55f4d3044f9a1a84f75a81bb9945a10c095' WHERE username='info@asidev.com';"
-    metadata.bind.execute(query)
     """
+    themes = {}
+    for theme in [Theme(name=u'base', parent=None),
+                  Theme(name=u'uffizi', parent=None),
+                  Theme(name=u'moma', parent=None)]:
+
+        session.add(theme)
+        themes[theme.name] = theme
+
+    themes['uffizi'].parent = themes['base']
+    themes['moma'].parent = themes['uffizi']
 
     session.commit()
