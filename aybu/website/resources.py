@@ -26,6 +26,8 @@ def get_root_resource(request):
         log.debug('Return NoLanguage context.')
         return NoLanguage()
 
+    request.set_language(url_parts[0][0])
+
     if len(url_parts) == 1:
         # URL is like '/{lang}'.
         log.debug('Get Context by Language %s.', url_parts[0][0])
