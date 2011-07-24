@@ -18,7 +18,7 @@ def main(global_config, **settings):
     # It is needed by Request objects to build Session.
     Request.set_db_engine(engine)
 
-    config = Configurator(settings=settings)
+    config = Configurator(settings=settings, request_factory=Request)
 
     # I.nitialize babel
     config.add_translation_dirs('aybu.website:locale')

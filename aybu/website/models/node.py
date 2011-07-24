@@ -178,10 +178,10 @@ class NodeInfo(Base):
     def __repr__(self):
         return "<NodeInfo [%d] '%s' %s>" % (self.id, self.label.encode('utf8'),
                                             self.url)
-
-    def get_by_url(self, session, url):
-        criterion = self.__class__.url.ilike(url)
-        return session.query(self.__class__).filter(criterion).one()
+    @classmethod
+    def get_by_url(cls, session, url):
+        criterion = cls.url.ilike(url)
+        return session.query(cls).filter(criterion).one()
 
 
 class Menu(Node):
