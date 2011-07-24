@@ -28,12 +28,13 @@ def get_root_resource(request):
 
     if len(url_parts) == 1:
         # URL is like '/{lang}'.
-        log.debug('Return Language %s (if exists) or None.', lang)
-        return Language.get_by_lang(request.db_session, url_parts[0])
+        log.debug('Get Context by Language %s.', url_parts[0][0])
+        return Language.get_by_lang(request.db_session, url_parts[0][0])
 
     else:
         # URL is like '/{lang}/{node}/[...]/{page}[.ext]
         # Get the NodeInfo from database using path_info.
+        log.debug('Get Context by NodeInfo %s.', request.path_info)
         url_parts[-1] = (url_parts[-1][0],
                          NodeInfo.get_by_url(request.db_session,
                                              request.path_info))

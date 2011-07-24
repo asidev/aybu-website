@@ -48,7 +48,8 @@ class Language(Base):
     def __eq__(self, other):
         return self.lang == other.lang and self.country == other.country
 
-    def get_by_lang(self, session, lang):
-        criterion = self.__class__.lang.ilike(lang)
-        return session.query(self.__class__).filter(criterion).first()
+    @classmethod
+    def get_by_lang(cls, session, lang):
+        criterion = cls.lang.ilike(lang)
+        return session.query(cls).filter(criterion).first()
 
