@@ -6,16 +6,18 @@ Copyright © 2010 Asidev s.r.l. - www.asidev.com
 """
 
 from aybu.website.models.base import Base
+from aybu.website.models.base import get_sliced
+from babel import Locale
+from babel.core import UnknownLocaleError as UnknownLocale
 from logging import getLogger
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import Unicode
-from sqlalchemy.ext.declarative import declarative_base
+
 
 __all__ = ['Language']
-
 
 log = getLogger(__name__)
 
@@ -53,3 +55,58 @@ class Language(Base):
         criterion = cls.lang.ilike(lang)
         return session.query(cls).filter(criterion).first()
 
+    @classmethod
+    def get_by_enabled(cls, session, enabled=None, start=None, limit=None):
+
+        query = session.query(cls)
+
+        if not enabled is None:
+            query = query.filter(cls.enabled == enabled)
+
+        return get_sliced(query, start, limit)
+
+    @property
+    def locale(self):
+
+        try:
+            return Locale(self.lang.lower(), self.country.upper())
+
+        except UnknownLocale as e:
+            log.debug(e)
+
+        try:
+            return Locale(self.lang.lower())
+
+        except UnknownLocale as e:
+            log.debug(e)
+
+        return None
+
+    @property
+    def locales(self):
+
+        try:
+            locale = Locale(self.lang.lower(), self.country.upper())
+            yield locale
+
+        except UnknownLocale as e:
+            log.debug(e)
+
+        try:
+            locale = Locale(self.lang.lower())
+            yield locale
+
+        except UnknownLocale as e:
+            log.debug(e)
+
+    @classmethod
+    def get_locales(cls, session, enabled=None, strict=False):
+        """ Create an iterator upon the list of available languages."""
+        for language in cls.get_by_enabled(session, enabled):
+
+            if strict:
+                yield language.locale
+                continue
+
+            for locale in language.locales:
+                yield locale

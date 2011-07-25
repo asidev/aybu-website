@@ -3,6 +3,7 @@
 
 from collections import deque
 from logging import getLogger
+from sqlalchemy import asc
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -13,6 +14,8 @@ from sqlalchemy import UnicodeText
 from sqlalchemy import Table
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound
 
 from aybu.website.models.base import Base
 from aybu.website.models.language import Language
@@ -182,6 +185,29 @@ class NodeInfo(Base):
     def get_by_url(cls, session, url):
         criterion = cls.url.ilike(url)
         return session.query(cls).filter(criterion).one()
+
+    @classmethod
+    def get_homepage(cls, session, language=None):
+
+        query = session.query(cls).filter(cls.node.has(Page.home == True))
+
+        if not language is None:
+            query = query.filter(cls.lang == language)
+
+        try:
+            return query.one()
+
+        except NoResultFound as e:
+            log.debug(e)
+
+        query = session.query(cls).filter(cls.lang == language)
+        query = query.join(Page).order_by(asc(Page.id))
+
+        home = query.first()
+        home.node.home = True
+        session.commit()
+
+        return home
 
 
 class Menu(Node):

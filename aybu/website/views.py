@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from aybu.website.models import Language
+from aybu.website.models import NodeInfo
+from babel import Locale
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.response import Response
+from sqlalchemy.orm.exc import NoResultFound
 import os
 
 
@@ -37,10 +41,30 @@ def show_not_found_error(context, request):
 
 
 def choose_default_language(context, request):
-    location = '/it'
+
+    # Get all the registered and enabled languages of the system.
+    available = [str(locale)
+                 for locale in Language.get_locales(request.db_session,
+                                                    enabled=True)]
+
+    # Get client preferred languages.
+    preferred = [str(locale) for locale in request.accepted_locales]
+
+    # Choose the best one.
+    negotiated = Locale.negotiate(preferred, available)
+
+    location = '/%s'
+
+    if not negotiated is None:
+        location = location % negotiated.language
+
+    else:
+        location = location % available[0]
+
     raise HTTPTemporaryRedirect(location=location)
 
 
 def redirect_to_homepage(context, request):
-    location = '/%s/index.html' % context.lang
-    raise HTTPMovedPermanently(location=location)
+    # Search the homepage translated in the language specified by context.
+    page = NodeInfo.get_homepage(request.db_session, context)
+    raise HTTPMovedPermanently(location=page.url)

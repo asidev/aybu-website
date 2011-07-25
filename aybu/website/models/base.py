@@ -11,3 +11,14 @@ __all__ = ['Base']
 
 
 Base = declarative_base()
+
+
+def get_sliced(query, start = None, limit = None):
+
+    if not start is None and not limit is None:
+        return query[start:start+limit]
+
+    if not start is None:
+        return query[start:]
+
+    return query.all()

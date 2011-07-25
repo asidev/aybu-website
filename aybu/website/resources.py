@@ -26,14 +26,12 @@ def get_root_resource(request):
         log.debug('Return NoLanguage context.')
         return NoLanguage()
 
-    request.set_language(url_parts[0][0])
+    request.language = Language.get_by_lang(request.db_session, url_parts[0][0])
 
     if len(url_parts) == 1:
         # URL is like '/{lang}'.
         log.debug('Get Context by Language %s.', url_parts[0][0])
-        url_parts[0] = (url_parts[0][0],
-                        Language.get_by_lang(request.db_session,
-                                             url_parts[0][0]))
+        url_parts[0] = (url_parts[0][0], request.language)
 
     else:
         # URL is like '/{lang}/{node}/[...]/{page}[.ext]

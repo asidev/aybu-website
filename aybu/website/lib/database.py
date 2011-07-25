@@ -201,7 +201,8 @@ def populate(config):
         menus[menu.id] = menu
 
     pages = {}
-    for page in [Page(id=2, parent=menus[1], weight=1, view=views[1]),
+    for page in [Page(id=2, home=True,
+                      parent=menus[1], weight=1, view=views[1]),
                  Page(id=3, parent=menus[1], weight=3, view=views[2]),
                  Page(id=9, parent=menus[1], weight=6, view=views[1])]:
 

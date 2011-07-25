@@ -20,8 +20,15 @@ def main(global_config, **settings):
     Request.set_db_engine(engine)
 
     config = Configurator(settings=settings, request_factory=Request)
+    #config.add_subscriber(Request.set_default_language, NewRequest)
 
-    # I.nitialize babel
+    # Initialize babel and Mako Internationalization
+    """
+    config.add_subscriber('aybu.website.subscribers.add_renderer_globals',
+                          'pyramid.events.BeforeRender')
+    config.add_subscriber(Request.add_localizer,
+                          'pyramid.events.NewRequest')
+    """
     config.add_translation_dirs('aybu.website:locale')
 
     config.include(add_routes)
