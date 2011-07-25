@@ -6,13 +6,15 @@ from aybu.website.models import NodeInfo
 from babel import Locale
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from sqlalchemy.orm.exc import NoResultFound
 import os
 
 
 def show_page(context, request):
-    return {'entity': context}
+    template = 'aybu.website:templates%s' % (context.node.view.fs_view_path)
+    return render_to_response(template, {'page': context}, request=request)
 
 
 def favicon(context, request):
