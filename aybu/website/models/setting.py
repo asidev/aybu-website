@@ -40,7 +40,7 @@ class Setting(Base):
     raw_type = Column(String(8), nullable=False)
     ui_administrable = Column(Boolean, default=False)
 
-    type_name = Column(Integer, ForeignKey('setting_types.name',
+    type_name = Column(Unicode(64), ForeignKey('setting_types.name',
                                            onupdate='cascade',
                                            ondelete='restrict'))
 

@@ -50,6 +50,6 @@ class Theme(Base):
     __table_args__ = ({'mysql_engine': 'InnoDB'})
 
     name = Column(Unicode(128), primary_key=True)
-    parent_name = Column(Integer, ForeignKey('themes.name'))
+    parent_name = Column(Unicode(128), ForeignKey('themes.name'))
     children = relationship('Theme',
                             backref=backref('parent', remote_side=name))
