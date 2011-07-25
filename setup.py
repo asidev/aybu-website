@@ -22,7 +22,7 @@ keywords = ''
 
 include_package_data = True
 zip_safe = False
-requires = ['pyramid', 'WebError', 'SQLAlchemy', 'Pillow']
+requires = ['pyramid', 'WebError', 'SQLAlchemy', 'Pillow', 'Babel']
 test_suite = 'aybu'
 
 entry_points = """\
