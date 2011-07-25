@@ -13,8 +13,10 @@ import os
 
 
 def show_page(context, request):
-    template = 'aybu.website:templates%s' % (context.node.view.fs_view_path)
-    return render_to_response(template, {'page': context}, request=request)
+    # FIXME: add query options to eager load: NodeInfo.Node.View.
+    return render_to_response(context.node.view.fs_view_path,
+                              {'page': context},
+                              request=request)
 
 
 def favicon(context, request):
@@ -26,7 +28,7 @@ def favicon(context, request):
 
 
 def sitemap(context, request):
-    return dict()
+    return {}
 
 
 def robots(context, request):
@@ -38,8 +40,7 @@ def robots(context, request):
 
 
 def show_not_found_error(context, request):
-    raise Exception(type(context))
-    return dict()
+    return {}
 
 
 def choose_default_language(context, request):

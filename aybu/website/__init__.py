@@ -60,46 +60,41 @@ def add_views(config):
     # Views called after URL dispatch.
 
     config.add_view(route_name='favicon',
-                    renderer='string',
                     view='aybu.website.views.favicon')
 
     config.add_view(route_name='robots',
-                    renderer='string',
                     view='aybu.website.views.robots')
 
     config.add_view(route_name='sitemap',
-                    renderer='string',
+                    renderer='/sitemap.mako',
                     view='aybu.website.views.sitemap')
 
     # Views called after Traversal.
 
     config.add_view(route_name='root',
                     context='aybu.website.resources.NoLanguage',
-                    renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.choose_default_language')
 
     config.add_view(route_name='root',
                     context='aybu.website.models.Language',
-                    renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.redirect_to_homepage')
 
     config.add_view(route_name='root',
                     context='aybu.website.models.NodeInfo',
-                    renderer='aybu.website:templates/test.mako',
                     view='aybu.website.views.show_page')
 
     config.add_view(route_name='root',
                     context=None,
-                    renderer='aybu.website:templates/test.mako',
+                    renderer='/errors/404.mako',
                     view='aybu.website.views.show_not_found_error')
 
     config.add_view(route_name='root',
                     context=NoResultFound,
-                    renderer='aybu.website:templates/test.mako',
+                    renderer='/errors/404.mako',
                     view='aybu.website.views.show_not_found_error')
 
     config.add_view(context=HTTPNotFound,
-                    renderer='aybu.website:templates/test.mako',
+                    renderer='/errors/404.mako',
                     view='aybu.website.views.show_not_found_error')
 
 
