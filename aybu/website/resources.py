@@ -15,8 +15,11 @@ def get_root_resource(request):
 
     log.debug('get_root_resource: %s', request.path_info)
 
+    # Getting url_parts and for each part associating a Resource
+    # On request.path_info applying strip('/') remvoe the initial / so
+    # with the following split('/') we obtain a list just with parts
     url_parts = [(url_part, Resource())
-                 for url_part in request.path_info.strip('/').split('/') 
+                 for url_part in request.path_info.strip('/').split('/')
                  if url_part]
 
     log.debug('url_parts: %s', url_parts)
