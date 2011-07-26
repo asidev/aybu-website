@@ -192,6 +192,7 @@ class NodeInfo(Base):
     @classmethod
     def get_homepage(cls, session, language=None):
 
+        # Get the NodeInfo which belongs to the 'home' Node.
         query = session.query(cls).filter(cls.node.has(Page.home == True))
 
         if not language is None:
@@ -203,6 +204,8 @@ class NodeInfo(Base):
         except NoResultFound as e:
             log.debug(e)
 
+        # There is no node with home == True.
+        # Get the NodeInfo of the Page with min weight in the main Menu.
         query = session.query(func.min(Page.weight).label('min_weight'))
         criterion = Page.parent.has(and_(Menu.weight == 1,
                                          Menu.parent == None))
@@ -216,8 +219,16 @@ class NodeInfo(Base):
         query = query.join(page, cls.node)
 
         home = query.first()
-        home.node.home = True
-        session.commit()
+        if home is None:
+            # The previous query is empty.
+            # Get the NodeInfo of the first inserted Page.
+            query = session.query(cls).filter(cls.lang == language)
+            query = query.join(Page).order_by(asc(Page.id))
+            home = query.first()
+
+        if not home is None:
+            home.node.home = True
+            session.commit()
 
         return home
 
