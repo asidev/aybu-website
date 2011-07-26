@@ -30,6 +30,7 @@ entry_points = """\
     main = aybu.website:main
 [paste.paster_command]
     aybu-setup = aybu.website.lib.command:SetupApp
+    uwsgi = pasteuwsgi.serve:ServeCommand
 """
 
 paster_plugins = ['pyramid']
