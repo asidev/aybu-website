@@ -27,7 +27,7 @@ class Helper(object):
         self._language = getattr(self._request.context, 'lang', None)
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                   True)
-        self._menus = Menu.get_by_
+        self._menus = None
 
     def url(self, url, *args, **kwargs):
         import inspect
