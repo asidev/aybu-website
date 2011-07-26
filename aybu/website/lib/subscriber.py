@@ -6,5 +6,7 @@ from aybu.website.lib.helper import Helper
 def add_renderer_globals(event):
     event['_'] = event['request'].translate
     event['localizer'] = event['request'].localizer
-    event['h'] = Helper()
+    event['h'] = Helper(event['request'])
+    event['c'] = Helper(event['request'])
+    event['url'] = event['h'].url
 

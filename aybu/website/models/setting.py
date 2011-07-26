@@ -11,6 +11,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
 from sqlalchemy import String
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import relationship
 
 
@@ -48,3 +49,7 @@ class Setting(Base):
 
     def __repr__(self):
         return "<Setting %s (%s)>" % (self.name, self.raw_type)
+
+    @classmethod
+    def get_all(cls, session):
+        return session.query(cls).options(joinedload('type')).all()
