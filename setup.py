@@ -22,7 +22,8 @@ keywords = ''
 
 include_package_data = True
 zip_safe = False
-requires = ['pyramid', 'WebError', 'SQLAlchemy', 'Pillow', 'Babel']
+requires = ['pyramid', 'WebError', 'SQLAlchemy', 'Pillow', 'Babel',
+            'CaptchaLib', 'aybu_themes']
 test_suite = 'aybu'
 
 entry_points = """\
