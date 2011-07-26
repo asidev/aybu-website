@@ -37,6 +37,7 @@ class Request(BaseRequest):
         self._languages = self.accept_language.best_matches()
         self._locale_name = None
         self._language = None
+        self.localizer = None
 
     @classmethod
     def set_db_engine(cls, engine):

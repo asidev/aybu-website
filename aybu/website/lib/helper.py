@@ -4,9 +4,10 @@
 """ ©2010-present Asidev S.r.l. """
 
 from aybu.website.models.language import Language
+from aybu.website.models.node import Menu
 from aybu.website.models.setting import Setting
+from recaptcha.client.captcha import displayhtml
 from webhelpers.html.builder import literal
-from captchalib.helper import captcha
 import logging
 import re
 
@@ -23,11 +24,12 @@ class Helper(object):
         self._css = []
         self._js = []
         self._settings = SettingProxy(self._request.db_session)
-        self._node = getattr(self._request.context, 'node', None)
+        self._translation = self._request.context
+        self._node = NodeProxy(getattr(self._translation, 'node', None))
         self._language = getattr(self._request.context, 'lang', None)
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                   True)
-        self._menus = None
+        self._menus = MenuProxy(self._request.db_session)
 
     def url(self, url, *args, **kwargs):
         import inspect
@@ -68,6 +70,14 @@ class Helper(object):
     @property
     def lang(self):
         return self._language
+
+    @property
+    def menus(self):
+        return self._menus
+
+    @property
+    def translation(self):
+        return self._translation
 
     def urlify(self, name):
 
@@ -164,3 +174,94 @@ class SettingProxy(object):
 
     def __getitem__(self, attr_name):
         return getattr(self, attr_name)
+
+
+class MenuProxy(object):
+
+    def __init__(self, session):
+        self._menus = {}
+        for menu in Menu.get_by_enabled(session, True):
+            self._menus[menu.weight] = NodeProxy(menu)
+
+    def __getitem__(self, weight):
+        return self._menus[weight]
+
+
+class NodeProxy(object):
+
+    def __init__(self, node):
+
+        self._node = node
+
+        self._translations = {}
+        for translation in getattr(self._node, 'translations', []):
+            self._translations[translation.lang] = translation
+
+        self._children = [NodeProxy(children)
+                          for children in getattr(self._node, 'children', [])]
+
+    def __getitem__(self, language):
+        log.debug('Node: %s', self._node)
+        log.debug('Translations: %s', self._translations)
+        return self._translations[language]
+
+    """
+    FOLLOWING FUNCTIONS are NOT USED... I think because there are bugs.
+
+
+    @property
+    def linked_by(self):
+        return Node.query.filter(InternalLink.linked_to == self).all()
+
+    @property
+    def pages(self):
+        return [p for p in self.crawl() if isinstance(p.type, Page)]
+
+    def crawl(self, callback=None):
+        queue = deque([self._node])
+        visited = deque()
+        while queue:
+            parent = queue.popleft()
+            if parent in visited:
+                continue
+            yield parent
+            if callback:
+                callback(parent)
+            visited.append(parent)
+            queue.extend(parent.children)
+
+    @property
+    def type(self):
+        return self._node.__class__.__name__
+    """
+
+    @property
+    def path(self):
+        """ Get all parents paths as a list
+            i.e. with the tree A --> B --> C get_parents_path(C) returns [A, B]
+        """
+        n = NodeProxy(self._node)
+        path = [n]
+        while n.parent:
+            n = n.parent
+            path.insert(0, n)
+
+        return path
+
+    @property
+    def enabled(self):
+        return getattr(self._node, 'enabled', None)
+
+    @property
+    def parent(self):
+        if self._node is None:
+            return None
+        return NodeProxy(self._node.parent)
+
+    @property
+    def banners(self):
+        return self._node.banners
+
+    @property
+    def children(self):
+        return self._children

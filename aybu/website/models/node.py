@@ -21,6 +21,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from sqlalchemy.sql import func
 
 from aybu.website.models.base import Base
+from aybu.website.models.base import get_sliced
 from aybu.website.models.language import Language
 
 
@@ -50,56 +51,14 @@ class Node(Base):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     @classmethod
-    def root(cls, weight=1):
-        return Menu.query.filter(Menu.weight == weight).one()
+    def get_by_enabled(cls, session, enabled=None, start=None, limit=None):
 
-    def __getitem__(self, lang):
-        if isinstance(lang, Language):
-            try:
-                return NodeInfo.query.filter(NodeInfo.node == self).\
-                                      filter(NodeInfo.lang == lang).one()
-            except Exception as e:
-                log.exception(e)
+        query = session.query(cls)
 
-        raise KeyError(lang)
+        if not enabled is None:
+            query = query.filter(cls.enabled == enabled)
 
-    @property
-    def linked_by(self):
-        return Node.query.filter(InternalLink.linked_to == self).all()
-
-    @property
-    def pages(self):
-        return [p for p in self.crawl() if isinstance(p, Page)]
-
-    def crawl(self, callback=None):
-        queue = deque([self])
-        visited = deque()
-        while queue:
-            parent = queue.popleft()
-            if parent in visited:
-                continue
-            yield parent
-            if callback:
-                callback(parent)
-            visited.append(parent)
-            queue.extend(parent.children)
-
-    @property
-    def type(self):
-        return self.__class__.__name__
-
-    @property
-    def path(self):
-        """ Get all parents paths as a list
-            i.e. with the tree A --> B --> C get_parents_path(C) returns [A, B]
-        """
-        n = self
-        path = [self]
-        while n.parent:
-            n = n.parent
-            path.insert(0, n)
-
-        return path
+        return get_sliced(query, start, limit)
 
     def __str__(self):
         return "<Node (%s) [id: %d, parent: %s, weigth:%d]>" % \

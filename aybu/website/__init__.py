@@ -33,9 +33,9 @@ def main(global_config, **settings):
     config.add_translation_dirs('aybu.website:locale')
 
     config.include(add_subscribers)
+    config.include(add_assets)
     config.include(add_routes)
     config.include(add_views)
-    config.include(add_assets)
 
     return config.make_wsgi_app()
 
@@ -51,6 +51,7 @@ def add_routes(config):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('robots', '/robots.txt')
     config.add_route('sitemap', '/sitemap.xml')
+    #config.add_route('static', '/static')
     # Put URL dispatch configuration statements before Traversal ones!!!
     config.add_route('root', '/*traverse', factory=get_root_resource)
 
