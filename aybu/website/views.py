@@ -5,6 +5,7 @@ from aybu.website.models import Language
 from aybu.website.models import NodeInfo
 from babel import Locale
 from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
@@ -70,4 +71,8 @@ def choose_default_language(context, request):
 def redirect_to_homepage(context, request):
     # Search the homepage translated in the language specified by context.
     page = NodeInfo.get_homepage(request.db_session, context)
+
+    if page is None:
+        raise HTTPNotFound('There is no homepage.')
+
     raise HTTPMovedPermanently(location=page.url)
