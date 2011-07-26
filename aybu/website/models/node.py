@@ -3,6 +3,7 @@
 
 from collections import deque
 from logging import getLogger
+from sqlalchemy import and_
 from sqlalchemy import asc
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -12,10 +13,12 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy import Table
+from sqlalchemy.orm import aliased
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.exc import MultipleResultsFound
+from sqlalchemy.sql import func
 
 from aybu.website.models.base import Base
 from aybu.website.models.language import Language
@@ -200,8 +203,17 @@ class NodeInfo(Base):
         except NoResultFound as e:
             log.debug(e)
 
+        query = session.query(func.min(Page.weight).label('min_weight'))
+        criterion = Page.parent.has(and_(Menu.weight == 1,
+                                         Menu.parent == None))
+        query = query.filter(criterion).group_by(Page.weight)
+        criterion = and_(Page.parent.has(and_(Menu.weight == 1,
+                                              Menu.parent == None)),
+                         Page.weight == query.subquery())
+        query = session.query(Page).filter(criterion)
+        page = aliased(Page, query.subquery())
         query = session.query(cls).filter(cls.lang == language)
-        query = query.join(Page).order_by(asc(Page.id))
+        query = query.join(page, cls.node)
 
         home = query.first()
         home.node.home = True
