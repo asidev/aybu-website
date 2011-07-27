@@ -62,7 +62,7 @@ class Node(Base):
 
     def __str__(self):
         return "<Node (%s) [id: %d, parent: %s, weigth:%d]>" % \
-                (self.type, self.id, self.parent_id, self.weight)
+                (self.__class__.__name__, self.id, self.parent_id, self.weight)
 
     def __repr__(self):
         return self.__str__()
@@ -141,8 +141,12 @@ class NodeInfo(Base):
                          secondaryjoin=id==_links_table.c.links_id)
 
     def __repr__(self):
-        return "<NodeInfo [%d] '%s' %s>" % (self.id, self.label.encode('utf8'),
-                                            self.url)
+        url = '' if self.url is None else self.url
+
+        return "<NodeInfo [%d] '%s' %s>" % (self.id,
+                                            self.label.encode('utf8'),
+                                            url.encode('utf8'))
+
     @classmethod
     def get_by_url(cls, session, url):
         criterion = cls.url.ilike(url)
