@@ -20,7 +20,7 @@ def get_root_resource(request):
     log.debug('get_root_resource: %s', request.path_info)
 
     # Getting url_parts and for each part associating a Resource
-    # On request.path_info applying strip('/') remvoe the initial / so
+    # On request.path_info applying strip('/') remove the initial / so
     # with the following split('/') we obtain a list just with parts
     url_parts = [UrlPart(part=url_part, resource=Resource())
                  for url_part in request.path_info.strip('/').split('/')
