@@ -3,9 +3,11 @@
 
 """ ©2010-present Asidev S.r.l. """
 
+from aybu.website.lib.util import OrderedSet
 from aybu.website.models.language import Language
 from aybu.website.models.node import Menu
 from aybu.website.models.setting import Setting
+from collections import namedtuple
 from recaptcha.client.captcha import displayhtml
 from webhelpers.html.builder import literal
 import logging
@@ -17,12 +19,17 @@ __all__ = ['captcha', 'url', 'form_input', 'locale_from_language', 'urlfy',
 log = logging.getLogger(__name__)
 
 
-class Helper(object):
+CSS = namedtuple('CSS', ['href', 'media'])
+JS = namedtuple('JS', ['href'])
+
+
+class TemplateHelper(object):
 
     def __init__(self, request):
         self._request = request
-        self._css = []
-        self._js = []
+        self._keywords = OrderedSet()
+        self._css = OrderedSet()
+        self._js = OrderedSet()
         self._settings = SettingProxy(self._request.db_session)
         self._translation = self._request.context
         self._node = NodeProxy(getattr(self._translation, 'node', None))
@@ -30,6 +37,48 @@ class Helper(object):
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                   True)
         self._menus = MenuProxy(self._request.db_session)
+
+    @property
+    def keywords(self):
+        return self._keywords
+
+    @property
+    def css(self):
+        """ It is an iterator over css list. """
+        for css in self._css:
+            yield css
+
+    def link_css(self, href, media='screen, projection', external=False):
+        """ Keep up-to-date the list of css used in the template."""
+
+        css = CSS(href=href, media=media)
+        self._css.add(css)
+
+        if ':' not in css.href or css.href.startswith('/'):
+            # Check the previous condition! Can css start with 'ftp'?
+            css.href = self.static_url(css.href)
+
+    @property
+    def js(self):
+        """ It is an iterator over js list. """
+        for js in self._js:
+            yield js
+
+    def link_js(self, href, external=False):
+        """ Keep up-to-date the list of css used in the template."""
+
+        js = JS(href=href)
+        self._js.add(js)
+
+        if ':' not in js.href or js.href.startswith('/'):
+            # Check the previous condition! Can css start with 'ftp'?
+            js.href = self.static_url(js.href)
+
+    def static_url(self, resource_url):
+        if resource_url.startswith('/uploads'):
+            return resource_url
+
+        return str('/static%s' % resource_url)
 
     def url(self, url, *args, **kwargs):
         import inspect
@@ -39,6 +88,9 @@ class Helper(object):
             frame = inspect.stack()[1]
             log.error("Called from: %s'", frame)
             return url
+
+        except Exception as e:
+            log.debug('url helper does not work! %s', e)
 
         finally:
             del frame
@@ -125,12 +177,6 @@ class Helper(object):
         url = url.strip('_')
 
         return url
-
-    def static_url(self, resource_url):
-        if resource_url.startswith('/uploads'):
-            return resource_url
-
-        return str('/static%s' % resource_url)
 
     def captcha(self, error=None):
 
