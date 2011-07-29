@@ -81,7 +81,7 @@ def add_views(config):
                     view='aybu.website.views.redirect_to_homepage')
 
     config.add_view(route_name='root',
-                    context='aybu.website.models.NodeInfo',
+                    context='aybu.website.models.PageTranslation',
                     view='aybu.website.views.show_page')
 
     config.add_view(route_name='root',

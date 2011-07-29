@@ -10,7 +10,4 @@ def add_renderer_globals(event):
     event['h'] = h
     event['c'] = h
     event['url'] = event['h'].url
-    event['css_link'] = h.link_css
-    event['js_link'] = h.link_js
-    event['keywords'] = h.keywords
 
