@@ -47,7 +47,7 @@ def default_user_from_config(config):
             elif option.startswith('default_user.password'):
                 key = 'password'
 
-            value = config.get(section, option)
+            value = unicode(config.get(section, option))
 
             if not value:
                 continue 
