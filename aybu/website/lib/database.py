@@ -363,11 +363,10 @@ def populate(config):
     # Build the NodeInfo.url for each NodeInfo object.
     for info in nodes_info.itervalues():
 
-        node = info.node
-        log.debug('Node id : %d, type : %s' % (node.id, type(node)) )
+        node_info = info.node
 
-        if isinstance(node, ExternalLink):
-            info.url = node.url
+        if isinstance(node_info, ExternalLink):
+            info.url = node_info.url
             continue
 
         if info.url_part is None:
@@ -375,19 +374,18 @@ def populate(config):
 
         url_parts = [info.url_part]
 
-        node = info.node
+        node = node_info
         while not node.parent is None:
             node = node.parent
-            for node_info in node.translations:
-                if node_info.lang == info.lang:
-                    url_parts.append(node_info.url_part)
+            for node_translation in node.translations:
+                if node_translation.lang == info.lang:
+                    url_parts.insert(0, node_translation.url_part)
                     break
 
-        url_parts.append(info.lang.lang)
-        url_parts.reverse()
-
+        url_parts.insert(0, info.lang.lang)
+        
         url = '/%s' % ('/'.join(url_parts))
-        if isinstance(node, Page):
+        if isinstance(node_info, Page):
             url = '%s.html' % (url)
 
         info.url = url
