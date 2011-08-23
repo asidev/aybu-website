@@ -24,7 +24,7 @@ include_package_data = True
 zip_safe = False
 requires = ['pyramid<1.2a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow==1.7.2', 'Babel',
             'recaptcha-client==1.0.6', 'aybu_themes', 'WebHelpers==1.3']
-test_suite = 'aybu-website'
+test_suite = 'aybu.website'
 
 entry_points = """\
 [paste.app_factory]
