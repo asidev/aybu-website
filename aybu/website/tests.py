@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import unittest
 
 from pyramid import testing
@@ -47,11 +50,24 @@ class LanguageModelTest(ModelsTests):
 
     def test_constructor(self):
         from aybu.website.models.language import Language
-        language = Language(id=1, lang=u'it', country=u'it', enabled=True)
+        language = Language(id=1, lang=u'IT', country=u'it', enabled=True)
 
         self.assertEqual(language.id, 1)
         self.assertEqual(language.lang, u'it')
         self.assertEqual(language.country, u'IT')
         self.assertEqual(language.enabled, True)
 
+    def test_get_by_lang(self):
+        pass
 
+    def test_get_by_enabled(self):
+        pass
+
+    def test_locale(self):
+        pass
+
+    def test_locales(self):
+        pass
+
+    def test_get_locales(self):
+        pass
