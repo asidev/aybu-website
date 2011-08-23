@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from logging import getLogger
 from aybu.website.models.base import Base
 from aybu.website.models.language import Language
 from aybu.website.models.node import ExternalLink
@@ -19,6 +20,9 @@ from aybu.website.models.view import ViewDescription
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+
+
+log = getLogger(__name__)
 
 
 def engine_from_config_parser(config):
@@ -50,7 +54,7 @@ def default_user_from_config(config):
             value = unicode(config.get(section, option))
 
             if not value:
-                continue 
+                continue
 
             options[key] = value
 
@@ -359,6 +363,13 @@ def populate(config):
     # Build the NodeInfo.url for each NodeInfo object.
     for info in nodes_info.itervalues():
 
+        node = info.node
+        log.debug('Node id : %d, type : %s' % (node.id, type(node)) )
+
+        if isinstance(node, ExternalLink):
+            info.url = node.url
+            continue
+
         if info.url_part is None:
             continue
 
@@ -374,6 +385,19 @@ def populate(config):
 
         url_parts.append(info.lang.lang)
         url_parts.reverse()
-        info.url = '/' + '/'.join(url_parts) + '.html'
+
+        url = '/%s' % ('/'.join(url_parts))
+        if isinstance(node, Page):
+            url = '%s.html' % (url)
+
+        info.url = url
+
+    # This is not efficient but it just run once on db initialization
+    for info in nodes_info.itervalues():
+        node = info.node
+        if isinstance(node, InternalLink):
+            for node_info in node.linked_to.translations:
+                if node_info.lang == info.lang:
+                    info.url = node_info.url
 
     session.commit()
