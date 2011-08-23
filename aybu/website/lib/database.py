@@ -63,12 +63,16 @@ def default_user_from_config(config):
 
     return User(**options)
 
-
-def populate(config):
-
+def create_session(config):
     engine = engine_from_config_parser(config)
     session = scoped_session(sessionmaker())
     session.configure(bind=engine)
+    return session
+
+
+def populate(config):
+
+    session = create_session(config)
 
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
