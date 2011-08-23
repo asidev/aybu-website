@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from aybu.website.models import Language
-from aybu.website.models import PageTranslation
+from aybu.website.models import NodeInfo
 from babel import Locale
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPNotFound
@@ -70,7 +70,7 @@ def choose_default_language(context, request):
 
 def redirect_to_homepage(context, request):
     # Search the homepage translated in the language specified by context.
-    page = PageTranslation.get_homepage(request.db_session, context)
+    page = NodeInfo.get_homepage(request.db_session, context)
 
     if page is None:
         raise HTTPNotFound('There is no homepage.')

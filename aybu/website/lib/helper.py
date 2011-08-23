@@ -6,9 +6,7 @@
 from aybu.website.lib.util import OrderedSet
 from aybu.website.models.language import Language
 from aybu.website.models.node import Menu
-from aybu.website.models.node import Page
 from aybu.website.models.setting import Setting
-from collections import deque
 from collections import namedtuple
 from recaptcha.client.captcha import displayhtml
 from webhelpers.html.builder import literal
@@ -44,13 +42,58 @@ class TemplateHelper(object):
     def keywords(self):
         return self._keywords
 
-    def static_url(self, url, **kwargs):
-        static = '/static%s' if url.startswith('/') else '/static/%s'
-        return static % url
-        return self._request.static_url(static % url, **kwargs)
+    @property
+    def css(self):
+        """ It is an iterator over css list. """
+        for css in self._css:
+            yield css
+
+    def link_css(self, href, media='screen, projection', external=False):
+        """ Keep up-to-date the list of css used in the template."""
+
+        css = CSS(href=href, media=media)
+        self._css.add(css)
+
+        if ':' not in css.href or css.href.startswith('/'):
+            # Check the previous condition! Can css start with 'ftp'?
+            css.href = self.static_url(css.href)
+
+    @property
+    def js(self):
+        """ It is an iterator over js list. """
+        for js in self._js:
+            yield js
+
+    def link_js(self, href, external=False):
+        """ Keep up-to-date the list of css used in the template."""
+
+        js = JS(href=href)
+        self._js.add(js)
+
+        if ':' not in js.href or js.href.startswith('/'):
+            # Check the previous condition! Can css start with 'ftp'?
+            js.href = self.static_url(js.href)
+
+    def static_url(self, resource_url):
+        if resource_url.startswith('/uploads'):
+            return resource_url
+
+        return str('/static%s' % resource_url)
 
     def url(self, url, *args, **kwargs):
-        return 'URL'
+        import inspect
+        log.error("Called %s.url with params: '%s', '%s', '%s'",
+                    __name__, url, args, kwargs)
+        try:
+            frame = inspect.stack()[1]
+            log.error("Called from: %s'", frame)
+            return url
+
+        except Exception as e:
+            log.debug('url helper does not work! %s', e)
+
+        finally:
+            del frame
 
     @property
     def literal(self):
@@ -62,7 +105,7 @@ class TemplateHelper(object):
 
     @property
     def rendering_type(self):
-        return 'dynamic'
+        return None
 
     @property
     def user(self):
@@ -194,9 +237,6 @@ class NodeProxy(object):
 
     def __init__(self, node):
 
-        if node is None:
-            raise ValueError('node cannot be None')
-
         self._node = node
 
         self._translations = {}
@@ -206,13 +246,10 @@ class NodeProxy(object):
         self._children = [NodeProxy(children)
                           for children in getattr(self._node, 'children', [])]
 
-    def __repr__(self):
-        return '<NodeProxy %s' % self._node
-
     def __getitem__(self, language):
         log.debug('Node: %s', self._node)
         log.debug('Translations: %s', self._translations)
-        return self._node.translations[language]
+        return self._translations[language]
 
     """
     FOLLOWING FUNCTIONS are NOT USED... I think because there are bugs.
@@ -222,12 +259,9 @@ class NodeProxy(object):
     def linked_by(self):
         return Node.query.filter(InternalLink.linked_to == self).all()
 
-    """
-
     @property
     def pages(self):
-        log.debug('%s.pages', self._node.__class__.__name__)
-        return [NodeProxy(p) for p in self.crawl() if isinstance(p, Page)]
+        return [p for p in self.crawl() if isinstance(p.type, Page)]
 
     def crawl(self, callback=None):
         queue = deque([self._node])
@@ -241,6 +275,11 @@ class NodeProxy(object):
                 callback(parent)
             visited.append(parent)
             queue.extend(parent.children)
+
+    @property
+    def type(self):
+        return self._node.__class__.__name__
+    """
 
     @property
     def path(self):
@@ -261,7 +300,7 @@ class NodeProxy(object):
 
     @property
     def parent(self):
-        if self._node.parent is None:
+        if self._node is None:
             return None
         return NodeProxy(self._node.parent)
 

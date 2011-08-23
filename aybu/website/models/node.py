@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from collections import deque
 from logging import getLogger
 from sqlalchemy import and_
 from sqlalchemy import asc
@@ -12,8 +13,6 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy import Table
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
@@ -27,9 +26,7 @@ from aybu.website.models.language import Language
 
 
 __all__ = ['Node', 'Menu', 'Page', 'Section', 'ExternalLink', 'InternalLink',
-           'NodeTranslation', 'MenuTranslation', 'PageTranslation', 
-           'SectionTranslation', 'ExternalLinkTranslation', 
-           'InternalLinkTranslation', 'Keyword']
+           'NodeInfo']
 
 
 log = getLogger(__name__)
@@ -63,154 +60,37 @@ class Node(Base):
 
         return get_sliced(query, start, limit)
 
-    def __repr__(self):
+    def __str__(self):
         return "<Node (%s) [id: %d, parent: %s, weigth:%d]>" % \
                 (self.__class__.__name__, self.id, self.parent_id, self.weight)
 
-    @hybrid_property
-    def translations(self):
-        return self.translations_by_language
-
-    @property
-    def translations_by_language(self):
-
-        if getattr(self, '_translations_by_language', None) is None:
-            self._translations_by_language = {}
-
-        for translation in self._translations:
-            self._translations_by_language[translation.lang] = translation
-
-        return self._translations_by_language
+    def __repr__(self):
+        return self.__str__()
 
 
-class NodeTranslation(Base):
+class NodeInfo(Base):
 
     __tablename__ = 'node_infos'
 
     id = Column(Integer, primary_key=True)
     label = Column(Unicode(64), nullable=False)
+    title = Column(Unicode(64), default=None)
     url_part = Column(Unicode(64), default=None)
+
     # This field is very useful but denormalize the DB
     url = Column(Unicode(512), default=None)
-
-    discriminator = Column('row_type', Unicode(50))
-    __mapper_args__ = {'polymorphic_on': discriminator}
 
     node_id = Column(Integer, ForeignKey('nodes.id',
                                          onupdate='cascade',
                                          ondelete='cascade'), nullable=False)
 
-    #node = relationship('Node', backref='translations')
+    node = relationship('Node', backref='translations')
 
     lang_id = Column(Integer, ForeignKey('languages.id',
                                          onupdate='cascade',
                                          ondelete='cascade'), nullable=False)
 
     lang = relationship('Language')
-
-    def __repr__(self):
-        url = '' if self.url is None else self.url
-
-        return "<%s [%d] '%s' %s>" % (self.__class__.__name__,
-                                      self.id,
-                                      self.label.encode('utf8'),
-                                      url.encode('utf8'))
-
-    @declared_attr
-    def node(cls):
-        # Follow the convention: Node -> {Node}Translation
-        class_ = cls.__name__.replace('Translation', '')
-        return relationship(class_,
-                            backref='_translations',
-                            primaryjoin='%s.id==%s.node_id' % (class_,
-                                                               cls.__name__))
-
-    @classmethod
-    def get_by_url(cls, session, url):
-        criterion = cls.url.ilike(url)
-        return session.query(cls).filter(criterion).one()
-
-
-class Menu(Node):
-
-    __mapper_args__ = {'polymorphic_identity': 'menu'}
-
-
-class MenuTranslation(NodeTranslation):
-
-    __mapper_args__ = {'polymorphic_identity': 'menutranslation'}
-
-
-class Keyword(Base):
-
-    __tablename__ = 'keywords'
-    __table_args__ = ({'mysql_engine': 'InnoDB'})
-
-    name = Column(Unicode(64), primary_key=True)
-
-
-class Section(Node):
-
-    __mapper_args__ = {'polymorphic_identity': 'section'}
-
-    @declared_attr
-    def keywords(cls):
-        _keywords_table = Table('node_infos__keywords',
-                                Base.metadata,
-                                Column('node_infos_id',
-                                       Integer,
-                                       ForeignKey('node_infos.id',
-                                                  onupdate="cascade",
-                                                  ondelete="cascade")),
-                                       Column('keyword_name',
-                                              Unicode(64),
-                                              ForeignKey('keywords.name',
-                                                         onupdate="cascade",
-                                                         ondelete="cascade")))
-        return relationship('Keyword', secondary=_keywords_table,
-                            primaryjoin=cls.id==_keywords_table.c.node_infos_id,
-                            secondaryjoin=Keyword.name==_keywords_table.c.keyword_name)
-
-    @declared_attr
-    def banners(cls):
-        _banners_table = Table('nodes_banners__files',
-                               Base.metadata,
-                               Column('nodes_id',
-                                      Integer,
-                                      ForeignKey('nodes.id',
-                                                 onupdate="cascade",
-                                                 ondelete="cascade")),
-                               Column('files_id',
-                                      Integer,
-                                      ForeignKey('files.id',
-                                                 onupdate="cascade",
-                                                 ondelete="cascade")))
-        return relationship('Banner', secondary=_banners_table)
-
-
-class SectionTranslation(NodeTranslation):
-
-    __mapper_args__ = {'polymorphic_identity': 'sectiontranslation'}
-
-    title = Column(Unicode(64), default=None)
-
-
-class Page(Section):
-
-    __mapper_args__ = {'polymorphic_identity': 'page'}
-
-    home = Column(Boolean, default=False)
-    sitemap_priority = Column(Integer, default=50, nullable=False)
-
-    view_id = Column(Integer, ForeignKey('views.id',
-                                         onupdate='cascade',
-                                         ondelete='restrict'))#, nullable=False)
-    view = relationship('View')
-
-
-class PageTranslation(SectionTranslation):
-
-    __mapper_args__ = {'polymorphic_identity': 'pagetranslation'}
 
     meta_description = Column(UnicodeText(), default=u'')
     head_content = Column(UnicodeText(), default=u'')
@@ -256,14 +136,26 @@ class PageTranslation(SectionTranslation):
                                 ForeignKey('node_infos.id',
                                            onupdate="cascade",
                                            ondelete="cascade")))
-    links = relationship('PageTranslation', secondary=_links_table,
-                         primaryjoin=NodeTranslation.id==_links_table.c.inverse_id,
-                         secondaryjoin=NodeTranslation.id==_links_table.c.links_id)
+    links = relationship('NodeInfo', secondary=_links_table,
+                         primaryjoin=id==_links_table.c.inverse_id,
+                         secondaryjoin=id==_links_table.c.links_id)
+
+    def __repr__(self):
+        url = '' if self.url is None else self.url
+
+        return "<NodeInfo [%d] '%s' %s>" % (self.id,
+                                            self.label.encode('utf8'),
+                                            url.encode('utf8'))
+
+    @classmethod
+    def get_by_url(cls, session, url):
+        criterion = cls.url.ilike(url)
+        return session.query(cls).filter(criterion).one()
 
     @classmethod
     def get_homepage(cls, session, language=None):
 
-        # Get the NodeTranslation which belongs to the 'home' Node.
+        # Get the NodeInfo which belongs to the 'home' Node.
         query = session.query(cls).filter(cls.node.has(Page.home == True))
 
         if not language is None:
@@ -276,7 +168,7 @@ class PageTranslation(SectionTranslation):
             log.debug(e)
 
         # There is no node with home == True.
-        # Get the NodeTranslation of the Page with min weight in the main Menu.
+        # Get the NodeInfo of the Page with min weight in the main Menu.
         query = session.query(func.min(Page.weight).label('min_weight'))
         criterion = Page.parent.has(and_(Menu.weight == 1,
                                          Menu.parent == None))
@@ -292,7 +184,7 @@ class PageTranslation(SectionTranslation):
         home = query.first()
         if home is None:
             # The previous query is empty.
-            # Get the NodeTranslation of the first inserted Page.
+            # Get the NodeInfo of the first inserted Page.
             query = session.query(cls).filter(cls.lang == language)
             query = query.join(Page).order_by(asc(Page.id))
             home = query.first()
@@ -304,18 +196,53 @@ class PageTranslation(SectionTranslation):
         return home
 
 
+class Menu(Node):
+
+    __mapper_args__ = {'polymorphic_identity': 'menu'}
+
+
+node_banners = Table('nodes_banners__files',
+                     Base.metadata,
+                     Column('nodes_id',
+                            Integer,
+                            ForeignKey('nodes.id',
+                                       onupdate="cascade",
+                                       ondelete="cascade")),
+                     Column('files_id',
+                            Integer,
+                            ForeignKey('files.id',
+                                       onupdate="cascade",
+                                       ondelete="cascade")))
+
+
+class Page(Node):
+
+    __mapper_args__ = {'polymorphic_identity': 'page'}
+
+    home = Column(Boolean, default=False)
+    sitemap_priority = Column(Integer, default=50, nullable=False)
+    banners = relationship('Banner', secondary=node_banners)
+
+    view_id = Column(Integer, ForeignKey('views.id',
+                                         onupdate='cascade',
+                                         ondelete='restrict'))#, nullable=False)
+    view = relationship('View')
+
+
+class Section(Node):
+
+    __mapper_args__ = {'polymorphic_identity': 'section'}
+
+    banners = relationship('Banner', secondary=node_banners)
+
+
 class ExternalLink(Node):
 
     __mapper_args__ = {'polymorphic_identity': 'externallink'}
 
     # Maybe this should be removed from here cause it can change with language
     # ie: http://www.apple.com or http://www.apple.it
-    # url = Column(Unicode(512), default=None)
-
-
-class ExternalLinkTranslation(NodeTranslation):
-
-    __mapper_args__ = {'polymorphic_identity': 'externallinktranslation'}
+    url = Column(Unicode(512), default=None)
 
 
 class InternalLink(Node):
@@ -324,16 +251,8 @@ class InternalLink(Node):
 
     linked_to_id = Column(Integer, ForeignKey('nodes.id',
                                               onupdate='cascade',
-                                              ondelete='cascade'))
+                                              ondelete='cascade'),)
+#                          nullable=False)
 
     linked_to = relationship('Page', backref='linked_by', remote_side=Page.id,
                              primaryjoin='Page.id == InternalLink.linked_to_id')
-
-
-class InternalLinkTranslation(NodeTranslation):
-
-    __mapper_args__ = {'polymorphic_identity': 'internallinktranslation'}
-
-    @property
-    def url(self):
-        return self.node.linked_to.translations[self.lang].url

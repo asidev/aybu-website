@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 from aybu.website.models.language import Language
-from aybu.website.models.node import NodeTranslation
+from aybu.website.models.node import NodeInfo
 import logging
 
 
@@ -45,10 +45,12 @@ def get_root_resource(request):
     else:
         # URL is like '/{lang}/{node}/[...]/{page}[.ext]
         # Get the NodeInfo from database using path_info.
-        log.debug('Get Context by NodeTranslation %s.', request.path_info)
-        resource = NodeTranslation.get_by_url(request.db_session,
-                                              request.path_info)
-        url_parts[-1] = UrlPart(part=url_parts[-1].part, resource=resource)
+        log.debug('Get Context by NodeInfo %s.', request.path_info)
+        url_parts[-1] = UrlPart(part=url_parts[-1].part,
+                                resource=NodeInfo.get_by_url(
+                                                    request.db_session,
+                                                    request.path_info)
+                               )
 
     # Create the resources tree.
     # The last element in resources tree is the request context.
