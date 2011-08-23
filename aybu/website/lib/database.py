@@ -2,20 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from aybu.website.models.base import Base
-from aybu.website.models.file import Banner
-from aybu.website.models.file import File
-from aybu.website.models.file import Image
 from aybu.website.models.language import Language
 from aybu.website.models.node import ExternalLink
 from aybu.website.models.node import InternalLink
 from aybu.website.models.node import Menu
-from aybu.website.models.node import Node
 from aybu.website.models.node import NodeInfo
 from aybu.website.models.node import Page
 from aybu.website.models.node import Section
 from aybu.website.models.setting import Setting
 from aybu.website.models.setting import SettingType
-from aybu.website.models.theme import Keyword
 from aybu.website.models.theme import Theme
 from aybu.website.models.user import Group
 from aybu.website.models.user import User
@@ -89,7 +84,7 @@ def populate(config):
                     Setting(name=u'template_levels', value=u'3',
                             raw_type=u'int', ui_administrable=False,
                             type_name=u'txt'),
-                    Setting(name=u'main_menu_levels', value=u'2', 
+                    Setting(name=u'main_menu_levels', value=u'2',
                             raw_type=u'int', ui_administrable=False,
                             type_name=u'txt'),
                     Setting(name=u'max_menus', value=u'1', raw_type=u'int',
@@ -135,7 +130,7 @@ def populate(config):
                     Setting(name=u'proxy_port', value=u'80', raw_type=u'int',
                             ui_administrable=False, type_name=u'txt'),
                     Setting(name=u'proxy_purge_timeout', value=u'2',
-                            raw_type=u'int', ui_administrable=False, 
+                            raw_type=u'int', ui_administrable=False,
                             type_name=u'txt'),
                     Setting(name=u'page_expire_sec', value=u'300',
                             raw_type=u'int', ui_administrable=False,
@@ -147,8 +142,9 @@ def populate(config):
                             type_name=u'txt'),
                     Setting(name=u'addthis', value=u'', raw_type=u'unicode',
                             ui_administrable=True, type_name=u'txt'),
-                    Setting(name=u'addthis_url', value=u'', raw_type=u'unicode',
-                            ui_administrable=True, type_name=u'txt'),
+                    Setting(name=u'addthis_url', value=u'',
+                            raw_type=u'unicode', ui_administrable=True,
+                            type_name=u'txt'),
                     Setting(name=u'disqus', value=u'', raw_type=u'unicode',
                             ui_administrable=True, type_name=u'txt'),
                     Setting(name=u'facebook', value=u'', raw_type=u'unicode',
@@ -161,18 +157,17 @@ def populate(config):
 
     user = User(username=u'info@asidev.com', password=str('cambiami'))
     session.add(user)
-    users = {user.username: user}
+    #users = {user.username: user}
 
     group = Group(name=u'admin')
     group.users.append(user)
     session.add(group)
-    groups = {group.name: group}
-
+    #groups = {group.name: group}
 
     views = {}
-    for view in [View(id=1, name=u'GENERIC', 
+    for view in [View(id=1, name=u'GENERIC',
                       fs_view_path='/pages/generic_content.mako'),
-                 View(id=2, name=u'CONTACTS', 
+                 View(id=2, name=u'CONTACTS',
                       fs_view_path='/pages/contacts.mako')]:
 
         session.add(view)
@@ -228,21 +223,22 @@ def populate(config):
     session.add(page)
     pages[page.id] = page
 
-    external_link = ExternalLink(id=8, parent=menus[1], weight=5, 
+    external_link = ExternalLink(id=8, parent=menus[1], weight=5,
                                  url=u'http://www.asidev.com')
     session.add(external_link)
     external_links = {external_link.id: external_link}
 
     nodes_info = {}
-    for info in [NodeInfo(id=1, label=u'Home', title=u'Pagina Principale', 
+    for info in [NodeInfo(id=1, label=u'Home', title=u'Pagina Principale',
                           url_part=u'index',
                           content=u'<h2>Pagina Principale</h2>',
                           lang=languages[1], node=pages[2]),
                  NodeInfo(id=2, label=u'Home', title=u'Home Page',
-                          url_part=u'index', content=u'<h2>Home Page</h2>', 
+                          url_part=u'index', content=u'<h2>Home Page</h2>',
                           lang=languages[2], node=pages[2]),
                  NodeInfo(id=3, label=u'Home', title=u'Primera Pagina',
-                          url_part=u'index', content=u'<h2>Primera Pagina</h2>',
+                          url_part=u'index',
+                          content=u'<h2>Primera Pagina</h2>',
                           lang=languages[3], node=pages[2]),
                  NodeInfo(id=4, label=u'Contatti', title=u'Contatti',
                           url_part=u'contatti', content=u'<h2>Contatti</h2>',
@@ -268,11 +264,11 @@ def populate(config):
                  NodeInfo(id=11, label=u'About Us', title=u'About Us',
                           url_part=u'about_us', content=u'<h2>About Us</h2>',
                           lang=languages[2], node=pages[5]),
-                 NodeInfo(id=12, label=u'Quiénes somos', title=u'Quiénes somos',
-                          url_part=u'quienes_somos',
+                 NodeInfo(id=12, label=u'Quiénes somos',
+                          title=u'Quiénes somos', url_part=u'quienes_somos',
                           content=u'<h2>Quiénes somos</h2>',
                           lang=languages[3], node=pages[5]),
-                 NodeInfo(id=13, label=u'La nostra storia', 
+                 NodeInfo(id=13, label=u'La nostra storia',
                           title=u'La nostra storia',
                           url_part=u'la_nostra_storia',
                           content=u'<h2>La nostra storia</h2>',
@@ -284,11 +280,11 @@ def populate(config):
                  NodeInfo(id=15, label=u'Nuestra Historia',
                           title=u'Nuestra Historia',
                           url_part=u'nuestra_historia',
-                          content=u'<h2>Nuestra Historia</h2>', 
+                          content=u'<h2>Nuestra Historia</h2>',
                           lang=languages[3], node=pages[6]),
-                 NodeInfo(id=16, label=u'Collegamento Interno', 
+                 NodeInfo(id=16, label=u'Collegamento Interno',
                           lang=languages[1], node=internal_links[7]),
-                 NodeInfo(id=17, label=u'Internal Link',lang=languages[2],
+                 NodeInfo(id=17, label=u'Internal Link', lang=languages[2],
                           node=internal_links[7]),
                  NodeInfo(id=18, label=u'Conexión Interna', lang=languages[3],
                           node=internal_links[7]),
