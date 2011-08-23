@@ -364,14 +364,7 @@ def populate(config):
     for info in nodes_info.itervalues():
 
         node_info = info.node
-
-        """
-        if isinstance(node_info, ExternalLink):
-            info.url = node_info.url
-            continue
-        """
-
-        if info.url_part is None:
+        if not isinstance(node_info, Page):
             continue
 
         url_parts = [info.url_part]
@@ -386,20 +379,7 @@ def populate(config):
 
         url_parts.insert(0, info.lang.lang)
 
-        url = '/%s' % ('/'.join(url_parts))
-        if isinstance(node_info, Page):
-            url = '%s.html' % (url)
+        info.url = '/%s.html' % ('/'.join(url_parts))
 
-            info.url = url
-
-    # This is not efficient but it just run once on db initialization
-    """
-    for info in nodes_info.itervalues():
-        node = info.node
-        if isinstance(node, InternalLink):
-            for node_info in node.linked_to.translations:
-                if node_info.lang == info.lang:
-                    info.url = node_info.url
-    """
 
     session.commit()
