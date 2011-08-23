@@ -5,8 +5,13 @@
 
 from aybu.website.lib.util import OrderedSet
 from aybu.website.models.language import Language
+from aybu.website.models.node import ExternalLink
+from aybu.website.models.node import InternalLink
 from aybu.website.models.node import Menu
+from aybu.website.models.node import Page
+from aybu.website.models.node import Section
 from aybu.website.models.setting import Setting
+from collections import deque
 from collections import namedtuple
 from recaptcha.client.captcha import displayhtml
 from webhelpers.html.builder import literal
@@ -27,9 +32,6 @@ class TemplateHelper(object):
 
     def __init__(self, request):
         self._request = request
-        self._keywords = OrderedSet()
-        self._css = OrderedSet()
-        self._js = OrderedSet()
         self._settings = SettingProxy(self._request.db_session)
         self._translation = self._request.context
         self._node = NodeProxy(getattr(self._translation, 'node', None))
@@ -37,42 +39,6 @@ class TemplateHelper(object):
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                   True)
         self._menus = MenuProxy(self._request.db_session)
-
-    @property
-    def keywords(self):
-        return self._keywords
-
-    @property
-    def css(self):
-        """ It is an iterator over css list. """
-        for css in self._css:
-            yield css
-
-    def link_css(self, href, media='screen, projection', external=False):
-        """ Keep up-to-date the list of css used in the template."""
-
-        css = CSS(href=href, media=media)
-        self._css.add(css)
-
-        if ':' not in css.href or css.href.startswith('/'):
-            # Check the previous condition! Can css start with 'ftp'?
-            css.href = self.static_url(css.href)
-
-    @property
-    def js(self):
-        """ It is an iterator over js list. """
-        for js in self._js:
-            yield js
-
-    def link_js(self, href, external=False):
-        """ Keep up-to-date the list of css used in the template."""
-
-        js = JS(href=href)
-        self._js.add(js)
-
-        if ':' not in js.href or js.href.startswith('/'):
-            # Check the previous condition! Can css start with 'ftp'?
-            js.href = self.static_url(js.href)
 
     def static_url(self, resource_url):
         if resource_url.startswith('/uploads'):
@@ -105,7 +71,7 @@ class TemplateHelper(object):
 
     @property
     def rendering_type(self):
-        return None
+        return 'dynamic'
 
     @property
     def user(self):
@@ -237,6 +203,9 @@ class NodeProxy(object):
 
     def __init__(self, node):
 
+        if node is None:
+            raise ValueError('node cannot be None')
+
         self._node = node
 
         self._translations = {}
@@ -247,13 +216,18 @@ class NodeProxy(object):
                           for children in getattr(self._node, 'children', [])]
 
     def __getitem__(self, language):
-        log.debug('Node: %s', self._node)
-        log.debug('Translations: %s', self._translations)
-        return self._translations[language]
+        try:
+            return NodeInfoProxy(self._translations[language], self)
+        except Exception as e:
+            log.debug('Exception type: %s', e.__class__.__name__)
+            log.debug('Node: %s', self._node)
+            log.debug('Translations: %s', self._translations)
+            log.debug('Language: %s', language)
+            raise e
 
     """
     FOLLOWING FUNCTIONS are NOT USED... I think because there are bugs.
-
+    """
 
     @property
     def linked_by(self):
@@ -261,7 +235,7 @@ class NodeProxy(object):
 
     @property
     def pages(self):
-        return [p for p in self.crawl() if isinstance(p.type, Page)]
+        return [p for p in self.crawl() if issubclass(p.type, Page)]
 
     def crawl(self, callback=None):
         queue = deque([self._node])
@@ -270,7 +244,9 @@ class NodeProxy(object):
             parent = queue.popleft()
             if parent in visited:
                 continue
-            yield parent
+            if parent is None:
+                continue
+            yield NodeProxy(parent)
             if callback:
                 callback(parent)
             visited.append(parent)
@@ -278,8 +254,7 @@ class NodeProxy(object):
 
     @property
     def type(self):
-        return self._node.__class__.__name__
-    """
+        return self._node.__class__
 
     @property
     def path(self):
@@ -300,7 +275,7 @@ class NodeProxy(object):
 
     @property
     def parent(self):
-        if self._node is None:
+        if self._node.parent is None:
             return None
         return NodeProxy(self._node.parent)
 
@@ -311,3 +286,42 @@ class NodeProxy(object):
     @property
     def children(self):
         return self._children
+
+
+class NodeInfoProxy(object):
+
+    def __init__(self, info, node_proxy):
+
+        if info is None:
+            raise ValueError('node cannot be None')
+
+        self._info = info
+        self._node = node_proxy
+
+    @property
+    def node(self):
+        return self._info.node
+
+    @property
+    def title(self):
+        return self._info.title
+
+    @property
+    def label(self):
+        return self._info.label
+
+    @property
+    def lang(self):
+        return self._info.lang
+
+    @property
+    def url(self):
+        if isinstance(self._info.node, Page):
+            return self._info.url
+        elif isinstance(self._info.node, (Menu, Section)):
+            return None
+        elif isinstance(self._info.node, InternalLink):
+            return NodeProxy(self.node.linked_to)[self.lang].url
+        elif isinstance(self._info.node, ExternalLink):
+            return self.node.url
+        raise TypeException('Cannot identify NodeInfo type!')
