@@ -2,6 +2,7 @@ import unittest
 
 from pyramid import testing
 
+
 """
 class ViewTests(unittest.TestCase):
 
@@ -23,8 +24,19 @@ class ModelsTests(unittest.TestCase):
 
     def setUp(self):
         self.config = testing.setUp()
-        from aybu.website.lib.database import create_session
-        self.session = create_session(self.config)
+
+        from aybu.website.models.base import Base
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import scoped_session
+        from sqlalchemy.orm import sessionmaker
+
+        self.engine = create_engine('sqlite:///:memory:')
+        self.session = scoped_session(sessionmaker())
+        self.session.configure(bind=self.engine)
+
+        Base.metadata.drop_all(self.engine)
+        Base.metadata.create_all(self.engine)
+
 
     def tearDown(self):
         self.session.remove()
