@@ -12,6 +12,7 @@ from sqlalchemy import Integer
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
+from sqlalchemy import String
 from sqlalchemy import Table
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm import backref
@@ -47,7 +48,7 @@ class Node(Base):
     children = relationship('Node', backref=backref('parent', remote_side=id),
                             primaryjoin='Node.id == Node.parent_id')
 
-    discriminator = Column('row_type', Unicode(50))
+    discriminator = Column('row_type', String(50))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     @classmethod
