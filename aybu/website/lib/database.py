@@ -33,6 +33,33 @@ def engine_from_config_parser(config):
     return engine_from_config(options)
 
 
+def default_user_from_config(config):
+
+    options = {}
+
+    for section in config.sections():
+        for option in config.options(section):
+
+            if not option.startswith('default_user'):
+                continue
+            elif option.startswith('default_user.username'):
+                key = 'username'
+            elif option.startswith('default_user.password'):
+                key = 'password'
+
+            value = config.get(section, option)
+
+            if not value:
+                continue 
+
+            options[key] = value
+
+    if not options:
+        raise ValueError('No default user in configuration file!')
+
+    return User(**options)
+
+
 def populate(config):
 
     engine = engine_from_config_parser(config)
@@ -155,7 +182,7 @@ def populate(config):
         session.add(setting)
         settings[setting.name] = setting
 
-    user = User(username=u'info@asidev.com', password=str('cambiami'))
+    user = default_user_from_config(config)
     session.add(user)
     #users = {user.username: user}
 
