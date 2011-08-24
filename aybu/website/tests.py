@@ -148,8 +148,12 @@ class LanguageModelTest(ModelsTests):
     def test_locales(self):
         l = Language(id=1, lang=u'it', country=u'IT', enabled=True)
 
-        self.assertIn(Locale(u'it', u'IT'), l.locales)
-        self.assertIn(Locale(u'it'), l.locales)
+        locales = []
+        for locale in l.locales:
+            locales.append(locale)
+
+        self.assertIn(Locale(u'it', u'IT'), locales)
+        self.assertIn(Locale(u'it'), locales)
 
     def test_get_locales(self):
         languages = [
@@ -167,8 +171,50 @@ class LanguageModelTest(ModelsTests):
 
         self.session.commit()
 
-        # TODO
+        enabled_locales = []
+        for language in Language.get_locales(self.session, enabled=True):
+            enabled_locales.append(language)
 
+        enabled_strict_locales = []
+        for language in Language.get_locales(self.session, enabled=True, strict=True):
+            enabled_strict_locales.append(language)
+
+        disabled_locales = []
+        for language in Language.get_locales(self.session, enabled=False):
+            disabled_locales.append(language)
+
+        disabled_strict_locales = []
+        for language in Language.get_locales(self.session, enabled=False, strict=True):
+            disabled_strict_locales.append(language)
+
+        all_locales = []
+        for language in Language.get_locales(self.session):
+            all_locales.append(language)
+
+        all_strict_locales = []
+        for language in Language.get_locales(self.session, strict=True):
+            all_strict_locales.append(language)
+
+        for language in languages:
+            full_locale = Locale(language.lang.lower(), language.country.upper())
+            lang_locale = Locale(language.lang.lower())
+
+            if language.enabled:
+                self.assertIn(full_locale, enabled_locales)
+                self.assertIn(lang_locale, enabled_locales)
+                self.assertIn(full_locale, enabled_strict_locales)
+                self.assertNotIn(lang_locale, enabled_strict_locales)
+            else:
+                self.assertIn(full_locale, disabled_locales)
+                self.assertIn(lang_locale, disabled_locales)
+                self.assertIn(full_locale, disabled_strict_locales)
+                self.assertNotIn(lang_locale, disabled_strict_locales)
+
+
+            self.assertIn(full_locale, all_locales)
+            self.assertIn(lang_locale, all_locales)
+            self.assertIn(full_locale, all_strict_locales)
+            self.assertNotIn(lang_locale, all_strict_locales)
 
 
 class PageModelTest(ModelsTests):
