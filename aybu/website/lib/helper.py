@@ -152,23 +152,6 @@ class TemplateHelper(object):
 
         return literal(html)
 
-    def locale_from_language(self, language, language_only=False):
-        from babel import Locale
-        try:
-            if language_only:
-                locale = Locale(language.lang.lower(), language.country.upper())
-            else:
-                locale = Locale(language.lang.lower(), language.country.upper())
-            return locale
-        except Exception:
-            if language_only:
-                lang = '%s %s' % (language.lang.lower(), language.country.upper())
-            else:
-                lang = '%s' % (language.lang.lower())
-            message = 'Unable to create locale using %s' % (lang)
-            log.exception(message)
-            raise Exception(message)
-
 
 class SettingProxy(object):
 
