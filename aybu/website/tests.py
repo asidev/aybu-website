@@ -6,6 +6,8 @@ import unittest
 from pyramid import testing
 from logging import getLogger
 
+from babel import Locale
+
 from aybu.website.models.language import Language
 
 log = getLogger(__name__)
@@ -21,7 +23,7 @@ class ViewTests(unittest.TestCase):
         testing.tearDown()
 
     def test_my_view(self):
-        from aybuwebsite.views import my_view
+        from aybu.website.views import my_view
         request = testing.DummyRequest()
         info = my_view(request)
         self.assertEqual(info['project'], 'aybu-website')
@@ -101,20 +103,72 @@ class LanguageModelTest(ModelsTests):
         self.session.commit()
 
         self.assertEqual(languages[0], Language.get_by_lang(self.session, u'it'))
-
+        self.assertEqual(languages[0], Language.get_by_lang(self.session, u'IT'))
+        self.assertNotEqual(languages[0], Language.get_by_lang(self.session, u'en'))
+        self.assertNotEqual(languages[0], Language.get_by_lang(self.session, u'EN'))
 
 
     def test_get_by_enabled(self):
-        pass
+
+        languages = [
+            Language(id=1, lang=u'it', country=u'IT', enabled=True),
+            Language(id=2, lang=u'en', country=u'GB', enabled=True),
+            Language(id=3, lang=u'es', country=u'ES', enabled=True),
+            Language(id=4, lang=u'de', country=u'DE', enabled=False),
+            Language(id=5, lang=u'fr', country=u'FR', enabled=False),
+            Language(id=6, lang=u'ru', country=u'RU', enabled=False),
+            Language(id=7, lang=u'zh', country=u'CN', enabled=False)
+        ]
+
+        for language in languages:
+            self.session.add(language)
+
+        self.session.commit()
+
+        enabled = Language.get_by_enabled(self.session, True)
+        disabled  = Language.get_by_enabled(self.session, False)
+        all = Language.get_by_enabled(self.session)
+
+        for i in xrange(0,3):
+            self.assertIn(languages[i], enabled)
+            self.assertIn(languages[i], all)
+            self.assertNotIn(languages[i], disabled)
+
+        for i in xrange(3,7):
+            self.assertIn(languages[i], disabled)
+            self.assertIn(languages[i], all)
+            self.assertNotIn(languages[i], enabled)
 
     def test_locale(self):
-        pass
+        l = Language(id=1, lang=u'it', country=u'IT', enabled=True)
+
+        self.assertEqual(Locale(u'it', u'IT'), l.locale)
+
 
     def test_locales(self):
-        pass
+        l = Language(id=1, lang=u'it', country=u'IT', enabled=True)
+
+        self.assertIn(Locale(u'it', u'IT'), l.locales)
+        self.assertIn(Locale(u'it'), l.locales)
 
     def test_get_locales(self):
-        pass
+        languages = [
+            Language(id=1, lang=u'it', country=u'IT', enabled=True),
+            Language(id=2, lang=u'en', country=u'GB', enabled=True),
+            Language(id=3, lang=u'es', country=u'ES', enabled=True),
+            Language(id=4, lang=u'de', country=u'DE', enabled=False),
+            Language(id=5, lang=u'fr', country=u'FR', enabled=False),
+            Language(id=6, lang=u'ru', country=u'RU', enabled=False),
+            Language(id=7, lang=u'zh', country=u'CN', enabled=False)
+        ]
+
+        for language in languages:
+            self.session.add(language)
+
+        self.session.commit()
+
+        # TODO
+
 
 
 class PageModelTest(ModelsTests):
