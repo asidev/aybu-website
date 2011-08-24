@@ -63,9 +63,7 @@ def default_user_from_config(config):
 
     return User(**options)
 
-
-def populate(config):
-
+def create_engine_and_session(config):
     engine = engine_from_config_parser(config)
     session = scoped_session(sessionmaker())
     session.configure(bind=engine)
@@ -73,6 +71,24 @@ def populate(config):
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
+    return session
+
+
+def populate(config):
+    session = create_engine_and_session(config)
+    fill_db(session)
+
+    user = default_user_from_config(config)
+    session.add(user)
+    #users = {user.username: user}
+
+    group = Group(name=u'admin')
+    group.users.append(user)
+    session.add(group)
+    #groups = {group.name: group}
+
+
+def fill_db(session):
     languages = {}
     for language in [Language(id=1, lang=u'it', country=u'IT', enabled=True),
                      Language(id=2, lang=u'en', country=u'GB', enabled=True),
@@ -185,15 +201,6 @@ def populate(config):
 
         session.add(setting)
         settings[setting.name] = setting
-
-    user = default_user_from_config(config)
-    session.add(user)
-    #users = {user.username: user}
-
-    group = Group(name=u'admin')
-    group.users.append(user)
-    session.add(group)
-    #groups = {group.name: group}
 
     views = {}
     for view in [View(id=1, name=u'GENERIC',

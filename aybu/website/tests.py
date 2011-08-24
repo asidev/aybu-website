@@ -8,7 +8,9 @@ from logging import getLogger
 
 from babel import Locale
 
+from aybu.website.lib.database import fill_db
 from aybu.website.models.language import Language
+from aybu.website.models.node import Node
 
 log = getLogger(__name__)
 
@@ -210,29 +212,32 @@ class LanguageModelTest(ModelsTests):
                 self.assertIn(full_locale, disabled_strict_locales)
                 self.assertNotIn(lang_locale, disabled_strict_locales)
 
-
             self.assertIn(full_locale, all_locales)
             self.assertIn(lang_locale, all_locales)
             self.assertIn(full_locale, all_strict_locales)
             self.assertNotIn(lang_locale, all_strict_locales)
 
 
-class PageModelTest(ModelsTests):
-
-    def test_constructor(self):
-        from aybu.website.models.node import Page
-
-    def test_get_by_lang(self):
-        pass
+class NodeModelTest(ModelsTests):
 
     def test_get_by_enabled(self):
-        pass
+        fill_db(self.session)
 
-    def test_locale(self):
-        pass
+        for node in self.session.query(Node).all():
+            self.assertIn(node, Node.get_by_enabled(self.session))
 
-    def test_locales(self):
-        pass
 
-    def test_get_locales(self):
-        pass
+class NodeInfoModelTest(ModelsTests):
+
+    def test_get_homepage(self):
+        fill_db(self.session)
+        #TODO
+
+
+
+
+
+
+
+
+
