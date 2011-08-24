@@ -21,23 +21,29 @@ def show_page(context, request):
 
 
 def favicon(context, request):
-    # FIX THE PATH!!!
-    _here = os.path.dirname(__file__)
-    return Response(content_type='image/x-icon',
-                    body=open(os.path.join(_here,
-                                           'static', 'favicon.ico')).read())
+    favicon = os.path.join(request.registry.settings['instance_uploads_dir'],
+                           'favicon.ico')
+    try:
+        icon = open(favicon)
+        return Response(content_type='image/x-icon', app_iter=icon)
+    except IOError:
+        raise NotFound()
 
 
 def sitemap(context, request):
+    def add_content_type(request, response):
+        response.content_type='text/xml'
+
+    request.add_response_callback(add_content_type)
     return {}
 
 
 def robots(context, request):
-    # FIX THE PATH!!!
-    _here = os.path.dirname(__file__)
-    return Response(content_type='text/plain',
-                    body=open(os.path.join(_here,
-                                           'static', 'robots.txt')).read())
+    def add_content_type(request, response):
+        response.content_type='text/plain'
+
+    request.add_response_callback(add_content_type)
+    return {}
 
 
 def show_not_found_error(context, request):
