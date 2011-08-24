@@ -64,10 +64,11 @@ def add_views(config):
                     view='aybu.website.views.favicon')
 
     config.add_view(route_name='robots',
+                    renderer='/base/robots.mako',
                     view='aybu.website.views.robots')
 
     config.add_view(route_name='sitemap',
-                    renderer='/sitemap.mako',
+                    renderer='/base/sitemap.mako',
                     view='aybu.website.views.sitemap')
 
     # Views called after Traversal.

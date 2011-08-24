@@ -33,12 +33,17 @@ class TemplateHelper(object):
     def __init__(self, request):
         self._request = request
         self._settings = SettingProxy(self._request.db_session)
-        self._translation = self._request.context
-        self._node = NodeProxy(getattr(self._translation, 'node', None))
-        self._language = getattr(self._request.context, 'lang', None)
-        self._languages = Language.get_by_enabled(self._request.db_session,
-                                                  True)
         self._menus = MenuProxy(self._request.db_session)
+        self._languages = Language.get_by_enabled(self._request.db_session,
+                                                      True)
+        self._translation = self._request.context
+        node = getattr(self._translation, 'node', None)
+        if not node is None:
+            self._node = NodeProxy(node)
+            self._language = getattr(self._request.context, 'lang', None)
+        else:
+            self._node = self._language = None
+
 
     def static_url(self, resource_url):
         if resource_url.startswith('/uploads'):
@@ -79,6 +84,9 @@ class TemplateHelper(object):
 
     @property
     def node(self):
+        if self._node is None:
+            raise ValueError('Node is None')
+
         return self._node
 
     @property
@@ -87,6 +95,9 @@ class TemplateHelper(object):
 
     @property
     def lang(self):
+        if self._language is None:
+            raise ValueError('Language is None')
+
         return self._language
 
     @property
