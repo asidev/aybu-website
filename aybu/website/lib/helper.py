@@ -3,7 +3,6 @@
 
 """ ©2010-present Asidev S.r.l. """
 
-from aybu.website.lib.util import OrderedSet
 from aybu.website.models.language import Language
 from aybu.website.models.node import ExternalLink
 from aybu.website.models.node import InternalLink
@@ -185,12 +184,12 @@ class SettingProxy(object):
 class MenuProxy(object):
 
     def __init__(self, session):
-        self._menus = {}
+        self._menus = []
         for menu in Menu.get_by_enabled(session, True):
-            self._menus[menu.weight] = NodeProxy(menu)
+            self._menus.insert(menu.weight-1, NodeProxy(menu))
 
     def __getitem__(self, weight):
-        return self._menus[weight]
+        return self._menus[weight-1]
 
 
 class NodeProxy(object):
@@ -202,16 +201,17 @@ class NodeProxy(object):
 
         self._node = node
 
-        self._translations = {}
-        for translation in getattr(self._node, 'translations', []):
-            self._translations[translation.lang] = translation
+        self._translations = getattr(self._node, 'translations', [])
+        self._translations_dict = {}
+        for translation in self._translations:
+            self._translations_dict[translation.lang] = translation
 
-        self._children = [NodeProxy(children)
-                          for children in getattr(self._node, 'children', [])]
+        self._children = [NodeProxy(child)
+                          for child in getattr(self._node, 'children', [])]
 
     def __getitem__(self, language):
         try:
-            return NodeInfoProxy(self._translations[language], self)
+            return NodeInfoProxy(self._translations_dict[language], self)
         except Exception as e:
             log.debug('Exception type: %s', e.__class__.__name__)
             log.debug('Node: %s', self._node)
@@ -222,6 +222,16 @@ class NodeProxy(object):
     """
     FOLLOWING FUNCTIONS are NOT USED... I think because there are bugs.
     """
+
+    def __eq__(self, node_proxy):
+        if not isinstance(node_proxy, NodeProxy):
+            raise Exception('Equivalence is allowed beetween NodeProxy object only')
+
+        return True if self._node.id == node_proxy._node.id else False
+
+    @property
+    def sitemap_priority(self):
+        return self._node.sitemap_priority
 
     @property
     def linked_by(self):
@@ -274,6 +284,10 @@ class NodeProxy(object):
         return NodeProxy(self._node.parent)
 
     @property
+    def translations(self):
+        return self._translations
+
+    @property
     def banners(self):
         return self._node.banners
 
@@ -281,20 +295,28 @@ class NodeProxy(object):
     def children(self):
         return self._children
 
+    @property
+    def linked_to(self):
+        return self._node.linked_to
+
+    @property
+    def url(self):
+        return self._node.url
+
 
 class NodeInfoProxy(object):
 
     def __init__(self, info, node_proxy):
 
         if info is None:
-            raise ValueError('node cannot be None')
+            raise ValueError('info cannot be None')
 
         self._info = info
         self._node = node_proxy
 
     @property
     def node(self):
-        return self._info.node
+        return self._node
 
     @property
     def title(self):
