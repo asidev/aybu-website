@@ -13,3 +13,4 @@ development.ini
 template.ini
 aybu.db
 dev.ini
+.coverage

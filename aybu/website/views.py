@@ -19,16 +19,8 @@ def show_page(context, request):
                               {'page': context},
                               request=request)
 
-
-def favicon(context, request):
-    favicon = os.path.join(request.registry.settings['instance_uploads_dir'],
-                           'favicon.ico')
-    try:
-        icon = open(favicon)
-        return Response(content_type='image/x-icon', app_iter=icon)
-    except IOError:
-        raise NotFound()
-
+def favicon(request):
+    raise HTTPMovedPermanently('/static/favicon.ico')
 
 def sitemap(context, request):
     def add_content_type(request, response):

@@ -51,7 +51,7 @@ def add_routes(config):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('robots', '/robots.txt')
     config.add_route('sitemap', '/sitemap.xml')
-    #config.add_route('static', '/static')
+
     # Put URL dispatch configuration statements before Traversal ones!!!
     config.add_route('root', '/*traverse', factory=get_root_resource)
 
@@ -60,8 +60,7 @@ def add_views(config):
 
     # Views called after URL dispatch.
 
-    config.add_view(route_name='favicon',
-                    view='aybu.website.views.favicon')
+    config.add_view(route_name='favicon', view='aybu.website.views.favicon')
 
     config.add_view(route_name='robots',
                     renderer='/base/robots.mako',
@@ -111,7 +110,8 @@ def add_assets(config):
     theme = db.themes.filter(db.themes.name == tname).one()
 
     log.info("Adding static view for aybu")
-    config.add_static_view('static', 'aybu.website:static')
+    #config.add_static_view('favicon.ico/', 'aybu.website:static/favicon.ico')
+    config.add_static_view('static', 'aybu.website:static/')
 
     log.info("Preparing static search path for %s", theme)
     themes_inheritance_chain = []
@@ -124,12 +124,23 @@ def add_assets(config):
             theme = None
 
     for theme in themes_inheritance_chain:
+
         theme_static_spec = 'aybu.themes:%s/public/' % theme.name
         log.info("Adding '%s' as override for static files", theme_static_spec)
         config.override_asset(
-            to_override='aybu.website:static/',
-            override_with=theme_static_spec
+            to_override = 'aybu.website:static/',
+            override_with = theme_static_spec
         )
+
+        """
+        favicon = '%sfavicon.ico' % (theme_static_spec)
+        log.info("Adding '%s' as override for favicon", favicon)
+        config.override_asset(
+            to_override = 'aybu.website:static/favicon.ico',
+            override_with = favicon
+        )
+        """
+
         theme_templates_spec = 'aybu.themes:%s/templates/' % theme.name
         log.info("Adding '%s' as override for templates", theme_templates_spec)
         config.override_asset(
