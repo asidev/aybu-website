@@ -56,14 +56,19 @@ class ModelsTests(unittest.TestCase):
 
 class LanguageModelTest(ModelsTests):
 
-    def test_constructor(self):
+    def test_set_attr(self):
+        languages = []
 
-        language = Language(id=1, lang=u'IT', country=u'it', enabled=True)
+        languages.append(Language(lang=u'it', country=u'it'))
+        languages.append(Language(lang=u'it', country=u'IT'))
+        languages.append(Language(lang=u'IT', country=u'IT'))
+        languages.append(Language(lang=u'IT', country=u'it'))
 
-        self.assertEqual(language.id, 1)
-        self.assertEqual(language.lang, u'it')
-        self.assertEqual(language.country, u'IT')
-        self.assertEqual(language.enabled, True)
+        # Object are not added to session otherwise they cause integrity error
+
+        for language in languages:
+            self.assertEqual(language.lang, u'it')
+            self.assertEqual(language.country, u'IT')
 
     def test_eq(self):
 
@@ -90,12 +95,7 @@ class LanguageModelTest(ModelsTests):
 
         languages = [
             Language(id=1, lang=u'it', country=u'IT', enabled=True),
-            Language(id=2, lang=u'en', country=u'GB', enabled=True),
-            Language(id=3, lang=u'es', country=u'ES', enabled=True),
-            Language(id=4, lang=u'de', country=u'DE', enabled=False),
-            Language(id=5, lang=u'fr', country=u'FR', enabled=False),
-            Language(id=6, lang=u'ru', country=u'RU', enabled=False),
-            Language(id=7, lang=u'zh', country=u'CN', enabled=False)
+            Language(id=2, lang=u'it', country=u'CH', enabled=False)
         ]
 
         for language in languages:
@@ -104,10 +104,20 @@ class LanguageModelTest(ModelsTests):
 
         self.session.commit()
 
-        self.assertEqual(languages[0], Language.get_by_lang(self.session, u'it'))
-        self.assertEqual(languages[0], Language.get_by_lang(self.session, u'IT'))
-        self.assertNotEqual(languages[0], Language.get_by_lang(self.session, u'en'))
-        self.assertNotEqual(languages[0], Language.get_by_lang(self.session, u'EN'))
+        self.assertIn(Language.get_by_lang(self.session, u'it'), languages)
+        self.assertIn(Language.get_by_lang(self.session, u'IT'), languages)
+        self.assertIn(Language.get_by_lang(self.session, u'It'), languages)
+        self.assertIn(Language.get_by_lang(self.session, u'iT'), languages)
+
+
+        self.session.add(Language(id=3, lang=u'en', country=u'GB',
+                                  enabled=True))
+        self.session.commit()
+
+        self.assertNotIn(Language.get_by_lang(self.session, u'en'), languages)
+        self.assertNotIn(Language.get_by_lang(self.session, u'EN'), languages)
+        self.assertNotIn(Language.get_by_lang(self.session, u'En'), languages)
+        self.assertNotIn(Language.get_by_lang(self.session, u'eN'), languages)
 
 
     def test_get_by_enabled(self):
@@ -142,13 +152,14 @@ class LanguageModelTest(ModelsTests):
             self.assertNotIn(languages[i], enabled)
 
     def test_locale(self):
-        l = Language(id=1, lang=u'it', country=u'IT', enabled=True)
-
+        l = Language(id=1, lang=u'it', country=u'it', enabled=True)
         self.assertEqual(Locale(u'it', u'IT'), l.locale)
+
+        l = Language(id=1, lang=u'it', country=u'it', enabled=True)
 
 
     def test_locales(self):
-        l = Language(id=1, lang=u'it', country=u'IT', enabled=True)
+        l = Language(id=1, lang=u'it', country=u'it', enabled=True)
 
         locales = []
         for locale in l.locales:
@@ -178,7 +189,8 @@ class LanguageModelTest(ModelsTests):
             enabled_locales.append(language)
 
         enabled_strict_locales = []
-        for language in Language.get_locales(self.session, enabled=True, strict=True):
+        for language in Language.get_locales(self.session, enabled=True,
+                                             strict=True):
             enabled_strict_locales.append(language)
 
         disabled_locales = []
@@ -186,7 +198,8 @@ class LanguageModelTest(ModelsTests):
             disabled_locales.append(language)
 
         disabled_strict_locales = []
-        for language in Language.get_locales(self.session, enabled=False, strict=True):
+        for language in Language.get_locales(self.session, enabled=False,
+                                             strict=True):
             disabled_strict_locales.append(language)
 
         all_locales = []
@@ -198,7 +211,8 @@ class LanguageModelTest(ModelsTests):
             all_strict_locales.append(language)
 
         for language in languages:
-            full_locale = Locale(language.lang.lower(), language.country.upper())
+            full_locale = Locale(language.lang.lower(),
+                                 language.country.upper())
             lang_locale = Locale(language.lang.lower())
 
             if language.enabled:
@@ -232,12 +246,3 @@ class NodeInfoModelTest(ModelsTests):
     def test_get_homepage(self):
         fill_db(self.session)
         #TODO
-
-
-
-
-
-
-
-
-
