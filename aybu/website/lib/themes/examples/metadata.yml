@@ -1,0 +1,53 @@
+
+---
+document:
+    metadata_version: "0.1"
+    aybu_version:  "0.1"
+    license: GPL
+    copyright: ©2011 Asidev s.r.l.
+
+author:
+    name: Luca Frosini
+    organization: Asidev s.r.l.
+    email: l.frosini@asidev.com
+    web: www.asidev.com
+    twitter: "@asidev"
+
+themes:
+    asidevtheme:
+        parent: base
+        
+        views: 
+            video:
+                template: pages/video_content.mako
+                it_comment: Pagine di contenuto generico con possibilità di embeddare video
+                en_comment: Generic Content page with video embedding feature
+            audio:
+                template: pages/audio_content.mako
+                it_comment: Pagine di contenuto generico con possibilità di embeddare audio
+                en_comment: Generic Content page with audio embedding feature
+         
+        settings: &commonsettings
+            banner_width : 900
+            banner_height : 320
+            logo_width : 320
+            logo_height : 320
+            main_menu_level : 2
+            template_levels : 3
+            
+        plugins:
+            - news
+            - products
+    
+    asidevtheme_blue:
+        parent : asidevtheme
+        settings : &variantsettings
+            <<: *commonsettings
+            banner_height: 220
+            logo_height: 220
+    
+    asidevtheme_red:
+        parent : asidevtheme
+        settings:
+            <<: *variantsettings
+...

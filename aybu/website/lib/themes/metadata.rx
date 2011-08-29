@@ -1,0 +1,54 @@
+
+type: //rec
+required:
+    document:
+        type: //rec
+        required:
+            metadata_version: //str
+            aybu_version: //str
+        optional:
+            license: //str
+            copyright: //str
+
+    author:
+        type: //rec
+        required:
+            name: //str
+            email: //str
+        optional:
+            web: //str
+            twitter: //str
+            organization: //str
+
+    themes:
+        type: //map
+        values:
+            type: //rec
+
+            optional:
+                parent: //str
+                views:
+                    type: //map
+                    values:
+                        type: //rec
+                        required:
+                            template: //str
+                            it_comment: //str
+                            en_comment: //str
+                settings:
+                    type: //map
+                    values:
+                        type: //def
+
+                new_settings:
+                    type: //map
+                    values:
+                        type: //rec
+                        required:
+                            value: //str
+                            type: //str
+                            ui_administrable: //bool
+
+                plugins:
+                    type: //arr
+                    contents: //str
