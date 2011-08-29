@@ -124,8 +124,9 @@ def add_assets(config):
             theme = None
 
     for theme in themes_inheritance_chain:
+        log.info('-- Adding %s' % (theme.name))
 
-        theme_static_spec = 'aybu.themes:%s/public/' % theme.name
+        theme_static_spec = 'aybu.themes.%s:/public/' % theme.name
         log.info("Adding '%s' as override for static files", theme_static_spec)
         config.override_asset(
             to_override = 'aybu.website:static/',
@@ -141,90 +142,82 @@ def add_assets(config):
         )
         """
 
-        theme_templates_spec = 'aybu.themes:%s/templates/' % theme.name
+        theme_templates_spec = 'aybu.themes.%s:/templates/' % theme.name
         log.info("Adding '%s' as override for templates", theme_templates_spec)
         config.override_asset(
             to_override='aybu.website:templates/',
             override_with=theme_templates_spec
         )
         theme_path = pkg_resources.\
-                resource_filename('aybu.themes',
-                                  '%s/templates' % (theme.name))
+                resource_filename('aybu.themes.%s' % (theme.name),
+                                  'templates')
 
         log.info("Adding '%s' to mako directories", theme_path)
         themes_paths.insert(0, theme_path)
 
-    log.info('Adding instance paths')
+    log.info('-- Adding Instance')
     settings = config.get_settings()
     try:
-        inst_data = settings['instance_data_dir']
-        if not os.path.isdir(inst_data):
-            log.critical("*" * 79)
-            log.critical("No such instance data directory '%s'", inst_data)
-            log.critical('Uploads and instance-specific templates/static '
-                         'will NOT work')
-            log.critical("*" * 79)
+        instance_name = settings['instance']
 
+        if instance_name is None or instance_name == '':
+            raise KeyError()
         else:
-#           FIXME: per instance static and templates overrides is disabled
-#           temporary, as override_asset API needs a setuptool package so
-#           we need to figure out how to deploy this.
-#           Actually, for templates it can work as we configure mako by
-#           itself, so it get it's own search path, but the problem remains
-#           for static files (i.e.: favicon)
-#           inst_templs = settings.get('instance_templates_dir',
-#                                      os.path.join(inst_data, 'templates'))
-#           inst_static = settings.get('instance_static_dir',
-#                                      os.path.join(inst_data, 'static'))
-#
-#            # overriding templates with instance-specific ones
-#            if os.path.isdir(inst_templs):
-#                log.info("Installing override for instance templates @'%s'",
-#                         inst_templs)
-#                config.override_asset(
-#                    to_override='aybu.website:templates/',
-#                    override_with=inst_templs)
-#                themes_paths.insert(0, inst_templs)
-#            else:
-#                log.warn("Instance template dir '%s' does not exists",
-#                         inst_templs)
-#
-#            # overriding static files with instance specific
-#            if os.path.isdir(inst_static):
-#                log.info("Installing override for instance static files @'%s'",
-#                         inst_static)
-#                config.override_asset(
-#                    to_override='aybu.website:static/',
-#                    override_with=inst_static)
-#            else:
-#                log.warn("Instance static dir '%s' does not exists",
-#                         inst_static)
+            instance_static_spec = '%s:/public/' % instance_name
+            log.info("Adding '%s' as override for static files",
+                     instance_static_spec)
+            config.override_asset(
+                to_override = 'aybu.website:static/',
+                override_with = instance_static_spec
+            )
 
-            inst_uploads = os.path.join(inst_data, 'static/uploads')
-            # Adding upload directory
-            if os.path.isdir(inst_uploads):
-                if not os.access(inst_uploads, os.W_OK):
+            """
+            favicon = '%sfavicon.ico' % (instance_static_spec)
+            log.info("Adding '%s' as override for favicon", favicon)
+            config.override_asset(
+                to_override = 'aybu.website:static/favicon.ico',
+                override_with = favicon
+            )
+            """
+
+            instance_templates_spec = '%s:/templates/' % instance_name
+            log.info("Adding '%s' as override for templates",
+                     instance_templates_spec)
+            config.override_asset(
+                to_override='aybu.website:templates/',
+                override_with=instance_templates_spec
+            )
+
+            instance_template_path = pkg_resources.\
+                                     resource_filename(instance_name, 'templates/')
+            log.info("Adding '%s' to mako directories", instance_template_path)
+            themes_paths.insert(0, instance_template_path)
+
+
+            instance_static_path = pkg_resources.\
+                                   resource_filename(instance_name, 'public/')
+
+            upload_path = os.path.join(instance_static_path, 'uploads')
+
+            if os.path.isdir(upload_path):
+                if not os.access(upload_path, os.W_OK):
                     log.critical("*" * 79)
                     log.critical("Instance upload dir '%s' is not writable",
-                                 inst_uploads)
+                                 upload_path)
                     log.critical('Uploads will NOT work')
                     log.critical("*" * 79)
-
-                log.info('Adding upload dir')
-                config.add_static_view('uploads/', inst_uploads)
-
             else:
                 log.critical("*" * 79)
                 log.critical("Instance upload dir '%s' does not exists",
-                             inst_uploads)
+                             upload_path)
                 log.critical('Uploads will NOT work')
                 log.critical("*" * 79)
 
             # Setup Pufferfish entities
-            File.private_path = inst_data
-            Image.private_path = inst_data
-            File.base_path = os.path.join(inst_uploads, "files")
-            Image.base_path = os.path.join(inst_uploads, "images")
+            File.private_path = upload_path
+            Image.private_path = upload_path
+            File.base_path = os.path.join(upload_path, "files")
+            Image.base_path = os.path.join(upload_path, "images")
             try:
                 os.mkdir(File.base_path)
             except OSError:
@@ -236,8 +229,11 @@ def add_assets(config):
 
 
     except KeyError as e:
+        log.critical("*" * 79)
+        log.critical("No instance")
+        log.critical('Uploads and instance-specific templates/static will NOT work')
+        log.critical("*" * 79)
         raise e
-        log.error("'%s', cannot configure instance data", e)
 
     config.add_settings({
         'mako.directories': themes_paths,
