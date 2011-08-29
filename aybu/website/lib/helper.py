@@ -16,6 +16,7 @@ from recaptcha.client.captcha import displayhtml
 from webhelpers.html.builder import literal
 import logging
 import re
+import ast
 
 __all__ = ['captcha', 'url', 'form_input', 'locale_from_language', 'urlfy',
            'static_url']
@@ -45,8 +46,10 @@ class TemplateHelper(object):
 
 
     def static_url(self, resource_url):
+        """
         if resource_url.startswith('/uploads'):
             return resource_url
+        """
 
         return str('/static%s' % resource_url)
 
@@ -168,7 +171,19 @@ class SettingProxy(object):
     def __init__(self, session):
         self._settings = {}
         for setting in Setting.get_all(session):
+
+            raw_type = setting.type.raw_type
+            value = setting.value
+
+            if raw_type != "unicode":
+                if raw_type == "bool":
+                    value = ast.literal_eval(str(setting.value))
+                else:
+                    value = eval(raw_type)(setting.value)
+
             self._settings[setting.name] = setting
+            self._settings[setting.name].value = value
+
 
     def __getattr__(self, attr_name):
 

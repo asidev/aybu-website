@@ -26,6 +26,7 @@ class SettingType(Base):
     __table_args__ = ({'mysql_engine': 'InnoDB'})
 
     name = Column(Unicode(64), primary_key=True)
+    raw_type = Column(String(8), nullable=False)
 
     def __repr__(self):
         return "<SettingType %s>" % (self.name)
@@ -38,7 +39,6 @@ class Setting(Base):
 
     name = Column(Unicode(128), primary_key=True)
     value = Column(Unicode(512), nullable=False)
-    raw_type = Column(String(8), nullable=False)
     ui_administrable = Column(Boolean, default=False)
 
     type_name = Column(Unicode(64), ForeignKey('setting_types.name',
