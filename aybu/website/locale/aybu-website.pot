@@ -1,14 +1,14 @@
-# Translations template for aybu-core.
+# Translations template for aybu-website.
 # Copyright (C) 2011 ORGANIZATION
-# This file is distributed under the same license as the aybu-core project.
+# This file is distributed under the same license as the aybu-website project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: aybu-core 0.2.0a1\n"
+"Project-Id-Version: aybu-website 0.1a1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2011-05-08 21:09+0200\n"
+"POT-Creation-Date: 2011-08-30 13:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
