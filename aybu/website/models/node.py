@@ -61,6 +61,10 @@ class Node(Base):
 
         return get_sliced(query, start, limit)
 
+    @property
+    def type(self):
+        return sel.__class__
+
     def __str__(self):
         return "<Node (%s) [id: %d, parent: %s, weigth:%d]>" % \
                 (self.__class__.__name__, self.id, self.parent_id, self.weight)
@@ -164,7 +168,6 @@ class NodeInfo(Base):
 
         try:
             return query.one()
-
         except NoResultFound as e:
             log.debug(e)
 
@@ -228,6 +231,34 @@ class Page(Node):
                                          onupdate='cascade',
                                          ondelete='restrict'))#, nullable=False)
     view = relationship('View')
+
+    @classmethod
+    def set_homepage(cls, session, page):
+        # Get the old home and set the attribute home to False
+
+        # Set the page passed as argument to home setting it's own attribute
+        # home to True
+        pass
+
+    @classmethod
+    def check_page_limit(cls, session):
+        q = session.query(Setting)
+        max_pages_setting = q.filter(Setting.name=='max_pages').one()
+        max_pages = max_pages_setting.value
+
+        if max_pages <= 0:
+            log.debug('No limit to pages can be created')
+            return True
+
+        log.debug('The maximun number of pages can be created is %d' % count)
+
+        num_pages = session.query(Page).count()
+        log.debug('The total number of pages is %d' % num_pages)
+
+        if max_pages <= num_pages:
+            return False
+
+        return True
 
 
 class Section(Node):
