@@ -63,7 +63,7 @@ class Node(Base):
 
     @property
     def type(self):
-        return sel.__class__
+        return self.__class__.__name__
 
     def __str__(self):
         return "<Node (%s) [id: %d, parent: %s, weigth:%d]>" % \
@@ -71,6 +71,16 @@ class Node(Base):
 
     def __repr__(self):
         return self.__str__()
+
+    @classmethod
+    def get_max_weight(cls, session, parent=None):
+
+        q = session.query(func.max(cls.weight))
+
+        if not parent is None:
+            q = q.filter(cls.parent == parent)
+
+        return  q.group_by(cls.weight).scalar()
 
 
 class NodeInfo(Base):
