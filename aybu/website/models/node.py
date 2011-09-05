@@ -243,7 +243,7 @@ class Page(Node):
 
     view_id = Column(Integer, ForeignKey('views.id',
                                          onupdate='cascade',
-                                         ondelete='restrict'))#, nullable=False)
+                                         ondelete='restrict'), nullable=False)
     view = relationship('View')
 
     @classmethod
