@@ -52,6 +52,10 @@ class Node(Base):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     @classmethod
+    def get_by_id(cls, session, id_):
+        return session.query(cls).get(id_)
+
+    @classmethod
     def get_by_enabled(cls, session, enabled=None, start=None, limit=None):
 
         query = session.query(cls)
