@@ -10,9 +10,9 @@ from aybu.core.models.node import ExternalLink
 from aybu.core.models.node import InternalLink
 from aybu.core.models.node import Menu
 from aybu.core.models.node import Node
-from aybu.core.models.node import NodeInfo
 from aybu.core.models.node import Page
 from aybu.core.models.node import Section
+from aybu.core.models.translation import NodeInfo
 from aybu.core.models.setting import Setting
 from aybu.core.models.setting import SettingType
 from aybu.core.models.theme import Keyword
