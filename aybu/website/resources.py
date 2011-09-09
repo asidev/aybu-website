@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import namedtuple
-from aybu.website.models.language import Language
-from aybu.website.models.node import NodeInfo
+from aybu.website.models import Language, NodeInfo
 import logging
 
 

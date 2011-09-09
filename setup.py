@@ -23,8 +23,9 @@ keywords = ''
 include_package_data = True
 zip_safe = False
 requires = ['pyramid<1.2a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow==1.7.2',
-            'Babel', 'lingua', 'recaptcha-client==1.0.6', 'WebHelpers==1.3']
-test_suite = 'aybu.website'
+            'Babel', 'recaptcha-client==1.0.6', 'WebHelpers==1.3', 'Mako']
+
+test_suite = 'aybu.website.tests'
 
 entry_points = """\
 [paste.app_factory]
@@ -40,8 +41,15 @@ namespace_packages = ['aybu']
 
 
 message_extractors = {
-    '.': [
-        ('**.py',   'lingua_python', None ),
+    'aybu.website': [
+        ('**.py', 'python', None),
+        ('templates/**.mako', 'mako', {'input_encoding': 'utf-8'}),
+        ('static/**', 'ignore', None)
+    ],
+    'aybu.themes': [
+        ('*/templates/**.mako', 'mako', {'input_encoding': 'utf-8'}),
+        ('*/static/**', 'ignore', None)
+
     ]
 }
 

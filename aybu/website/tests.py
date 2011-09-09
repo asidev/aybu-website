@@ -11,6 +11,8 @@ from logging import getLogger
 
 log = getLogger(__name__)
 
+class Tests(unittest.TestCase):
+    pass
 
 """
 class ViewTests(unittest.TestCase):
