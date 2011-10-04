@@ -25,7 +25,7 @@ zip_safe = False
 requires = ['pyramid<1.3a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
             'Babel', 'recaptcha-client', 'WebHelpers', 'Mako']
 
-test_suite = 'aybu.website.tests'
+test_suite = 'tests'
 
 entry_points = """\
 [paste.app_factory]

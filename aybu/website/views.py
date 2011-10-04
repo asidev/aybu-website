@@ -8,9 +8,6 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.renderers import render_to_response
-from pyramid.response import Response
-from sqlalchemy.orm.exc import NoResultFound
-import os
 
 
 def show_page(context, request):
@@ -23,18 +20,12 @@ def favicon(request):
     raise HTTPMovedPermanently('/static/favicon.ico')
 
 def sitemap(context, request):
-    def add_content_type(request, response):
-        response.content_type='text/xml'
-
-    request.add_response_callback(add_content_type)
+    request.response.content_type = "text/xml"
     return {}
 
 
 def robots(context, request):
-    def add_content_type(request, response):
-        response.content_type='text/plain'
-
-    request.add_response_callback(add_content_type)
+    request.response.content_type='text/plain'
     return {}
 
 
