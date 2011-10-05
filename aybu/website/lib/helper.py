@@ -3,11 +3,11 @@
 
 """ ©2010-present Asidev s.r.l. """
 
-from aybu.website.lib.common import urlify
-from aybu.website.models.language import Language
-from aybu.website.models.node import InternalLink, Node, Menu, Page, Section
-from aybu.website.models.node import ExternalLink
-from aybu.website.models.setting import Setting
+from aybu.core.utils.modifiers import urlify
+from aybu.website.models import Language
+from aybu.website.models import InternalLink, Node, Menu, Page, Section
+from aybu.website.models import ExternalLink
+from aybu.website.models import Setting
 from collections import deque
 from collections import namedtuple
 from recaptcha.client.captcha import displayhtml
