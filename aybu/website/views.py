@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aybu.website.models import Language
-from aybu.website.models import NodeInfo
-from babel import Locale
+from aybu.website.models import PageInfo
+from aybu.website.lib.language import get_negotiated_language
 from pyramid.httpexceptions import HTTPMovedPermanently
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.renderers import render_to_response
 
@@ -18,6 +16,7 @@ def show_page(context, request):
 
 def favicon(request):
     raise HTTPMovedPermanently('/static/favicon.ico')
+
 
 def sitemap(context, request):
     request.response.content_type = "text/xml"
@@ -34,34 +33,11 @@ def show_not_found_error(context, request):
 
 
 def choose_default_language(context, request):
-
-    # Get all the registered and enabled languages of the system.
-    available = [str(locale)
-                 for locale in Language.get_locales(request.db_session,
-                                                    enabled=True)]
-
-    # Get client preferred languages.
-    preferred = [str(locale) for locale in request.accepted_locales]
-
-    # Choose the best one.
-    negotiated = Locale.negotiate(preferred, available)
-
-    location = '/%s'
-
-    if not negotiated is None:
-        location = location % negotiated.language
-
-    else:
-        location = location % available[0]
-
-    raise HTTPTemporaryRedirect(location=location)
+    lang = get_negotiated_language(request)
+    raise HTTPTemporaryRedirect(location='/%s' % (lang.lang))
 
 
 def redirect_to_homepage(context, request):
-    # Search the homepage translated in the language specified by context.
-    page = NodeInfo.get_homepage(request.db_session, context)
-
-    if page is None:
-        raise HTTPNotFound('There is no homepage.')
-
+    lang = get_negotiated_language(request)
+    page = PageInfo.get_homepage(request.db_session, lang)
     raise HTTPMovedPermanently(location=page.url)

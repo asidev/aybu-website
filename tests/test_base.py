@@ -7,9 +7,6 @@ from aybu.core.models import engine_from_config_parser, create_session
 from aybu.core.utils.request import Request as AybuRequest
 from aybu.website.models import Base
 
-class AugmentedRequest(testing.DummyRequest, AybuRequest):
-    pass
-
 class BaseTests(unittest.TestCase):
 
     def setUp(self):
@@ -21,7 +18,7 @@ class BaseTests(unittest.TestCase):
         testing.tearDown()
 
     def setup_model(self):
-        self.config = ConfigParser.ConfigParser()
+        self.configparser = ConfigParser.ConfigParser()
         ini = os.path.realpath(
                 os.path.join(os.path.dirname(__file__),
                     "..",
@@ -29,12 +26,12 @@ class BaseTests(unittest.TestCase):
 
         try:
             with open(ini) as f:
-                self.config.readfp(f)
+                self.configparser.readfp(f)
 
         except IOError:
             raise Exception("Cannot find configuration file '%s'" % ini)
 
-        self.engine = engine_from_config_parser(self.config)
+        self.engine = engine_from_config_parser(self.configparser)
         self.session = create_session(self.engine)
         Base.metadata.create_all(self.engine)
         AybuRequest.db_session = self.session
