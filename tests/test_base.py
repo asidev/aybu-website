@@ -27,8 +27,8 @@ def read_config():
         raise Exception("Cannot find configuration file '%s'" % ini)
     return parser
 
+
 def read_data():
-    # populate database
     databag = os.path.realpath(
                 os.path.join(
                         os.path.dirname(__file__),
