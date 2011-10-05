@@ -126,9 +126,5 @@ class ViewTests(BaseTests):
         self.ctx = self.session.query(PageInfo).filter(PageInfo.id == 3).one()
         dummy_rendererer = self.config.testing_add_renderer(
                                         self.ctx.node.view.fs_view_path)
-        resp = show_page(self.ctx, self.req)
+        show_page(self.ctx, self.req)
         dummy_rendererer.assert_(page=self.ctx, request=self.req)
-
-
-
-
