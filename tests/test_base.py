@@ -1,11 +1,45 @@
+import json
 import unittest
 import ConfigParser
 import os
 
 from pyramid import testing
+from webtest import TestApp
+
+from aybu.core.models import populate
 from aybu.core.models import engine_from_config_parser, create_session
 from aybu.core.utils.request import Request as AybuRequest
 from aybu.website.models import Base
+from aybu.website import main
+
+def read_config():
+    parser = ConfigParser.ConfigParser()
+    ini = os.path.realpath(
+            os.path.join(os.path.dirname(__file__),
+                "..",
+                'tests.ini'))
+
+    try:
+        with open(ini) as f:
+            parser.readfp(f)
+
+    except IOError:
+        raise Exception("Cannot find configuration file '%s'" % ini)
+    return parser
+
+def read_data():
+    # populate database
+    databag = os.path.realpath(
+                os.path.join(
+                        os.path.dirname(__file__),
+                        "..", "data", "tests_data.json"))
+    try:
+        with open(databag) as f:
+            return json.loads(f.read())
+
+    except IOError:
+        raise Exception("Cannot find data file '%s'" % databag)
+
 
 class BaseTests(unittest.TestCase):
 
@@ -18,22 +52,27 @@ class BaseTests(unittest.TestCase):
         testing.tearDown()
 
     def setup_model(self):
-        self.configparser = ConfigParser.ConfigParser()
-        ini = os.path.realpath(
-                os.path.join(os.path.dirname(__file__),
-                    "..",
-                    'tests.ini'))
 
-        try:
-            with open(ini) as f:
-                self.configparser.readfp(f)
-
-        except IOError:
-            raise Exception("Cannot find configuration file '%s'" % ini)
-
-        self.engine = engine_from_config_parser(self.configparser)
+        parser = read_config()
+        self.engine = engine_from_config_parser(parser,
+                                                'app:aybu-website')
         self.session = create_session(self.engine)
         Base.metadata.create_all(self.engine)
         AybuRequest.db_session = self.session
         AybuRequest.db_engine = self.engine
         self.req = AybuRequest({})
+
+
+class FunctionalBase(unittest.TestCase):
+
+    def setUp(self):
+
+        parser = read_config()
+        data = read_data()
+        section = 'app:aybu-website'
+        populate(parser, data, section)
+
+        settings = {opt: parser.get(section, opt)
+                    for opt in parser.options(section)}
+        app = main({}, **settings)
+        self.testapp = TestApp(app)

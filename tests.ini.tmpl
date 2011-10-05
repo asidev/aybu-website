@@ -1,7 +1,58 @@
-[app:main]
+[app:aybu-website]
+use = egg:aybu-website
+reload_templates = false
+debug_authorization = false
+debug_notfound = false
+debug_routematch = false
+debug_templates = false
+default_locale_name = en
 sqlalchemy.url = mysql://username:password@localhost:3306/dbname?charset=utf8
 sqlalchemy.pool_recycle=3600
 
+instance = aybu-instances-website-tests
 
-default_user.username = Fill me with username!
-default_user.password = Fill me with password!
+default_user.username = testusername
+default_user.password = testpassword
+
+[pipeline:main]
+pipeline =
+    aybu-website
+
+[server:main]
+use = egg:Paste#http
+host = 0.0.0.0
+port = 6543
+
+[commands]
+setup-app = aybu.website.lib.database.populate
+
+# Begin logging configuration
+
+[loggers]
+keys = root, aybu
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = DEBUG
+handlers = console
+
+[logger_aybu]
+level = DEBUG
+handlers =
+qualname = aybu
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+
+# End logging configuration

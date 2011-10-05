@@ -25,6 +25,7 @@ zip_safe = False
 requires = ['pyramid<1.3a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
             'Babel', 'recaptcha-client', 'WebHelpers', 'Mako']
 
+tests_require = ['nose', 'coverage', 'webtest', 'aybu-instances-website-tests']
 test_suite = 'tests'
 
 entry_points = """\
@@ -63,7 +64,7 @@ setup(name=name, version=version, description=description,
       long_description=long_description, classifiers=classifiers,
       author=author, author_email=author_email, url=url, keywords=keywords,
       packages=find_packages(), include_package_data=include_package_data,
-      zip_safe=zip_safe, install_requires=requires, tests_require=requires,
+      zip_safe=zip_safe, install_requires=requires, tests_require=tests_require,
       test_suite=test_suite, entry_points=entry_points,
       message_extractors=message_extractors,
       paster_plugins=paster_plugins, namespace_packages=namespace_packages)
