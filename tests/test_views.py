@@ -52,7 +52,7 @@ class ViewTests(BaseTests):
 
         self.session.add(hpage_info_it)
         self.session.add(hpage_info_en)
-        self.session.flush()
+        self.session.commit()
 
     def test_favicon(self):
         from aybu.website.views import favicon
@@ -76,32 +76,29 @@ class ViewTests(BaseTests):
 
     def test_choose_default_language(self):
         from aybu.website.views import choose_default_language
-        self.setup_model()
         l = Language(lang='it', country='IT', enabled=True)
         self.session.add(l)
-        self.session.flush()
+        self.session.commit()
         with self.assertRaises(HTTPTemporaryRedirect) as cm:
             choose_default_language(self.ctx, self.req)
         self.assertEqual(cm.exception.location, "/it")
-        self.session.rollback()
+        self.session.commit()
 
     def test_negotiate_language(self):
         from aybu.website.views import choose_default_language
-        self.setup_model()
         l_it = Language(lang='it', country='IT', enabled=True)
         l_en = Language(lang='en', country='US', enabled=True)
         self.session.add(l_it)
         self.session.add(l_en)
-        self.session.flush()
+        self.session.commit()
         self.req.accept_language = "en-US,en"
         with self.assertRaises(HTTPTemporaryRedirect) as cm:
             choose_default_language(self.ctx, self.req)
         self.assertEqual(cm.exception.location, "/en")
-        self.session.rollback()
+        self.session.commit()
 
     def test_redirect_to_homepage(self):
         from aybu.website.views import redirect_to_homepage
-        self.setup_model()
         self.add_test_data_to_db()
         hpage_it = self.session.query(PageInfo).filter(PageInfo.id == 3).one()
         hpage_en = self.session.query(PageInfo).filter(PageInfo.id == 4).one()
@@ -116,12 +113,11 @@ class ViewTests(BaseTests):
             redirect_to_homepage(self.ctx, self.req)
         self.assertEqual(cm.exception.location, hpage_en.url)
 
-        self.session.rollback()
+        self.session.commit()
 
 
     def test_show_page(self):
         from aybu.website.views import show_page
-        self.setup_model()
         self.add_test_data_to_db()
         self.ctx = self.session.query(PageInfo).filter(PageInfo.id == 3).one()
         dummy_rendererer = self.config.testing_add_renderer(

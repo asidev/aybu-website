@@ -4,13 +4,12 @@ import ConfigParser
 import os
 
 from pyramid import testing
-from webtest import TestApp
 
 from aybu.core.models import populate
 from aybu.core.models import engine_from_config_parser, create_session
 from aybu.core.utils.request import Request as AybuRequest
 from aybu.website.models import Base
-from aybu.website import main
+from sqlalchemy.orm import Session
 
 def read_config():
     parser = ConfigParser.ConfigParser()
@@ -44,28 +43,30 @@ def read_data():
 class BaseTests(unittest.TestCase):
 
     def setUp(self):
-        self.req = testing.DummyRequest()
-        self.ctx = testing.DummyResource()
-        self.config = testing.setUp(request=self.req)
-
-    def tearDown(self):
-        testing.tearDown()
-
-    def setup_model(self):
-
         parser = read_config()
         self.engine = engine_from_config_parser(parser,
                                                 'app:aybu-website')
         self.session = create_session(self.engine)
-        Base.metadata.create_all(self.engine)
         AybuRequest.db_session = self.session
         AybuRequest.db_engine = self.engine
         self.req = AybuRequest({})
+        self.ctx = testing.DummyResource()
+        self.config = testing.setUp(request=self.req)
+        self.req.registry = self.config.registry
+
+    def tearDown(self):
+        self.session.remove()
+        Session.close_all()
+        testing.tearDown()
+        Base.metadata.drop_all(self.engine)
+
 
 
 class FunctionalBase(unittest.TestCase):
 
     def setUp(self):
+        from webtest import TestApp
+        from aybu.website import main
 
         parser = read_config()
         data = read_data()
@@ -76,3 +77,6 @@ class FunctionalBase(unittest.TestCase):
                     for opt in parser.options(section)}
         app = main({}, **settings)
         self.testapp = TestApp(app)
+
+    def tearDown(self):
+        Session.close_all()
