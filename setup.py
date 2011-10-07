@@ -49,7 +49,7 @@ entry_points = """\
 [paste.app_factory]
     main = aybu.website:main
 [paste.paster_command]
-    aybu-setup = aybu.website.lib.command:SetupApp
+    aybu-setup = aybu.core.utils.command:SetupApp
     uwsgi = pasteuwsgi.serve:ServeCommand
 """
 

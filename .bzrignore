@@ -1,7 +1,6 @@
 aybu_website.egg-info
 aybu_website.egg-info/**
 *.pyc
-*komodo*
 development.ini
 aybu.db
 dev.ini
