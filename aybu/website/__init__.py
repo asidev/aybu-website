@@ -172,11 +172,12 @@ def add_assets(config):
     settings = config.get_settings()
     try:
         instance_name = settings['instance']
+        instance_module_name = "aybu.instances.%s" % (instance_name)
 
         if instance_name is None or instance_name == '':
             raise KeyError()
         else:
-            instance_static_spec = '%s:/public/' % instance_name
+            instance_static_spec = '%s:/public/' % instance_module_name
             log.info("Adding '%s' as override for static files",
                      instance_static_spec)
             config.override_asset(
@@ -193,7 +194,7 @@ def add_assets(config):
             )
             """
 
-            instance_templates_spec = '%s:/templates/' % instance_name
+            instance_templates_spec = '%s:/templates/' % instance_module_name
             log.info("Adding '%s' as override for templates",
                      instance_templates_spec)
             config.override_asset(
@@ -202,13 +203,15 @@ def add_assets(config):
             )
 
             instance_template_path = pkg_resources.\
-                                     resource_filename(instance_name, 'templates/')
+                                     resource_filename(instance_module_name,
+                                                       'templates/')
             log.info("Adding '%s' to mako directories", instance_template_path)
             themes_paths.insert(0, instance_template_path)
 
 
             instance_static_path = pkg_resources.\
-                                   resource_filename(instance_name, 'public/')
+                                   resource_filename(instance_module_name,
+                                                     'public/')
 
             upload_path = os.path.join(instance_static_path, 'uploads')
 
