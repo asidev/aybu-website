@@ -17,7 +17,7 @@ limitations under the License.
 """
 
 from collections import namedtuple
-from aybu.website.models import Language, NodeInfo
+from aybu.core.models import Language, NodeInfo
 import logging
 
 

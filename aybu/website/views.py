@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from aybu.website.models import PageInfo
+from aybu.core.models import PageInfo
 from aybu.website.lib.language import get_negotiated_language
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPTemporaryRedirect

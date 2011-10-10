@@ -17,10 +17,10 @@ limitations under the License.
 """
 
 from aybu.core.utils.modifiers import urlify
-from aybu.website.models import Language
-from aybu.website.models import InternalLink, Node, Menu, Page, Section
-from aybu.website.models import ExternalLink
-from aybu.website.models import Setting
+from aybu.core.models import Language
+from aybu.core.models import InternalLink, Node, Menu, Page, Section
+from aybu.core.models import ExternalLink
+from aybu.core.models import Setting
 from collections import deque
 from collections import namedtuple
 from recaptcha.client.captcha import displayhtml

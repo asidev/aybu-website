@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from aybu.website.models import Language
+from aybu.core.models import Language
 from babel import Locale
 
 

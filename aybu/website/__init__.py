@@ -17,7 +17,7 @@ limitations under the License.
 """
 
 from aybu.core.utils.request import Request
-from aybu.website.models import Base, File, Image
+from aybu.core.models import Base, File, Image
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
@@ -90,11 +90,11 @@ def add_views(config):
                     view='aybu.website.views.choose_default_language')
 
     config.add_view(route_name='root',
-                    context='aybu.website.models.Language',
+                    context='aybu.core.models.Language',
                     view='aybu.website.views.redirect_to_homepage')
 
     config.add_view(route_name='root',
-                    context='aybu.website.models.NodeInfo',
+                    context='aybu.core.models.NodeInfo',
                     view='aybu.website.views.show_page')
 
     config.add_view(route_name='root',
