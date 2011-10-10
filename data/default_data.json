@@ -14,6 +14,8 @@
  {"cls_": "SettingType", "name": "email", "raw_type": "unicode"},
  {"cls_": "SettingType", "name": "string", "raw_type": "str"},
  {"cls_": "Setting", "name": "site_title", "value": "Nome Sito", "ui_administrable": true, "type": "txt"},
+ {"cls_": "Setting", "name": "reseller_link", "value": "http://www.asidev.com", "ui_administrable": true, "type": "txt"},
+ {"cls_": "Setting", "name": "reseller_name", "value": "Asidev s.r.l.", "ui_administrable": true, "type": "txt"},
  {"cls_": "Setting", "name": "theme_name", "value": "moma", "ui_administrable": false, "type": "txt"},
  {"cls_": "Setting", "name": "footer_info", "value": "<strong>Nome Azienda</strong>", "ui_administrable": true, "type": "html"},
  {"cls_": "Setting", "name": "template_levels", "value": "3", "ui_administrable": false, "type": "integer"},
