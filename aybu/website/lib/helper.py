@@ -314,5 +314,5 @@ class NodeInfoProxy(object):
         elif isinstance(self._info.node, InternalLink):
             return NodeProxy(self.node.linked_to)[self.lang].url
         elif isinstance(self._info.node, ExternalLink):
-            return self.node.url
+            return self._info.ext_url
         raise TypeException('Cannot identify NodeInfo type!')

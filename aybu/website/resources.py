@@ -17,7 +17,7 @@ limitations under the License.
 """
 
 from collections import namedtuple
-from aybu.core.models import Language, NodeInfo
+from aybu.core.models import Language, PageInfo
 import logging
 
 
@@ -61,7 +61,7 @@ def get_root_resource(request):
         # Get the NodeInfo from database using path_info.
         log.debug('Get Context by NodeInfo %s.', request.path_info)
         url_parts[-1] = UrlPart(part=url_parts[-1].part,
-                                resource=NodeInfo.get_by_url(
+                                resource=PageInfo.get_by_url(
                                                     request.db_session,
                                                     request.path_info)
                                )
