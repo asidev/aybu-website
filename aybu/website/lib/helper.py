@@ -43,13 +43,17 @@ class TemplateHelper(object):
         self._menus = MenuProxy(self._request.db_session)
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                       True)
-        self._translation = self._request.context
-        node = getattr(self._translation, 'node', None)
-        if not node is None:
-            self._node = NodeProxy(node)
-            self._language = getattr(self._request.context, 'lang', None)
+        if hasattr(self._request, "context"):
+            self._translation = self._request.context
+            node = getattr(self._translation, 'node', None)
+            if not node is None:
+                self._node = NodeProxy(node)
+                self._language = getattr(self._request.context, 'lang', None)
+            else:
+                self._node = self._language = None
         else:
-            self._node = self._language = None
+            self._node = None
+            self._translation = None
 
     def static_url(self, resource_url):
         return str('/static%s' % resource_url)
