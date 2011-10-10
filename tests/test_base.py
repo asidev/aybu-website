@@ -26,7 +26,7 @@ from pyramid import testing
 from aybu.core.models import populate
 from aybu.core.models import engine_from_config_parser, create_session
 from aybu.core.utils.request import Request as AybuRequest
-from aybu.website.models import Base
+from aybu.core.models import Base
 from sqlalchemy.orm import Session
 
 def read_config():

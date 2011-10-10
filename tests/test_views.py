@@ -17,11 +17,11 @@ limitations under the License.
 """
 
 from . test_base import BaseTests
-from aybu.website.models import Language
-from aybu.website.models import Page
-from aybu.website.models import Menu
-from aybu.website.models import PageInfo
-from aybu.website.models import View
+from aybu.core.models import Language
+from aybu.core.models import Page
+from aybu.core.models import Menu
+from aybu.core.models import PageInfo
+from aybu.core.models import View
 
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPTemporaryRedirect
