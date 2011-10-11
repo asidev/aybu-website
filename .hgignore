@@ -4,3 +4,4 @@ syntax: glob
 ./*.ini
 ./aybu_website.egg-info
 ./dist
+./.coverage
