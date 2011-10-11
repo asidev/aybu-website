@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)
 
 
 def main(global_config, **settings):
-
     engine = engine_from_config(settings, 'sqlalchemy.')
     # Set metadata for tables.
     Base.metadata.create_all(engine)
@@ -42,7 +41,12 @@ def main(global_config, **settings):
     Request.set_db_engine(engine)
 
     config = Configurator(settings=settings, request_factory=Request)
+    includeme(config)
 
+    return config.make_wsgi_app()
+
+
+def includeme(config):
     # Initialize Babel translation dirs.
     config.add_translation_dirs('aybu.website:locale')
 
@@ -50,8 +54,7 @@ def main(global_config, **settings):
     config.include(add_assets)
     config.include(add_routes)
     config.include(add_views)
-
-    return config.make_wsgi_app()
+    config.include('pyramid_mailer')
 
 
 def add_subscribers(config):

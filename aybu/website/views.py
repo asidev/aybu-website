@@ -18,6 +18,7 @@ limitations under the License.
 
 from aybu.core.models import PageInfo
 from aybu.website.lib.language import get_negotiated_language
+from aybu.website.lib.contact_utils import handle_contact_form
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.renderers import render_to_response
@@ -25,6 +26,8 @@ from pyramid.renderers import render_to_response
 
 def show_page(context, request):
     # FIXME: add query options to eager load: NodeInfo.Node.View.
+    if request.method == "POST" and context.node.view.name == u'CONTACTS':
+        handle_contact_form(request)
     return render_to_response(context.node.view.fs_view_path,
                               {'page': context},
                               request=request)

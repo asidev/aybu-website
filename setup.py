@@ -41,7 +41,9 @@ include_package_data = True
 zip_safe = False
 
 requires = ('pyramid<1.3a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
-            'Babel', 'recaptcha-client', 'WebHelpers', 'Mako')
+            'Babel', 'recaptcha-client', 'WebHelpers', 'Mako',
+            'pyramid_mailer')
+
 tests_require = ('nose', 'coverage', 'webtest', 'aybu-instances-website-tests')
 setup_requires = ('versiontools >= 1.8',)
 
