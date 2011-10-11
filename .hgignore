@@ -3,4 +3,4 @@ syntax: glob
 *.pyc
 ./*.ini
 ./aybu_website.egg-info
-./.coverage
+./dist

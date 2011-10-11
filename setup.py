@@ -20,7 +20,7 @@ import os
 from setuptools import setup, find_packages
 
 name = 'aybu-website'
-version = '0.1a1'
+version = ":versiontools:aybu.website:"
 description = 'aybu-website'
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -28,22 +28,23 @@ README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 long_description = README + '\n\n' + CHANGES
 
-classifiers = ["Programming Language :: Python",
+classifiers = ("Programming Language :: Python",
                "Framework :: Pyramid", "Topic :: Internet :: WWW/HTTP",
-               "Topic :: Internet :: WWW/HTTP :: WSGI :: Application"]
+               "Topic :: Internet :: WWW/HTTP :: WSGI :: Application")
 
-author = ''
-author_email = ''
-url = ''
+author = 'Asidev s.r.l.'
+author_email = 'info@asidev.com'
+url = 'https://bitbucket.org/asidev/aybu-website'
 keywords = ''
 
 include_package_data = True
 zip_safe = False
-requires = ['pyramid<1.3a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
-            'Babel', 'recaptcha-client', 'WebHelpers', 'Mako',
-            'pyramid_exclog']
 
-tests_require = ['nose', 'coverage', 'webtest', 'aybu-instances-website-tests']
+requires = ('pyramid<1.3a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
+            'Babel', 'recaptcha-client', 'WebHelpers', 'Mako')
+tests_require = ('nose', 'coverage', 'webtest', 'aybu-instances-website-tests')
+setup_requires = ('versiontools >= 1.8',)
+
 test_suite = 'tests'
 
 entry_points = """\
@@ -55,10 +56,7 @@ entry_points = """\
 """
 
 paster_plugins = ['pyramid']
-
 namespace_packages = ['aybu']
-
-
 message_extractors = {
     'aybu.website': [
         ('**.py', 'python', None),
@@ -85,4 +83,5 @@ setup(name=name, version=version, description=description,
       zip_safe=zip_safe, install_requires=requires, tests_require=tests_require,
       test_suite=test_suite, entry_points=entry_points,
       message_extractors=message_extractors,
-      paster_plugins=paster_plugins, namespace_packages=namespace_packages)
+      paster_plugins=paster_plugins, namespace_packages=namespace_packages,
+      setup_requires=setup_requires)

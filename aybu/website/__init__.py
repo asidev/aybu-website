@@ -28,6 +28,7 @@ import logging
 import os
 import pkg_resources
 
+__version__ = (0, 1, 0, "alpha", 1)
 log = logging.getLogger(__name__)
 
 
