@@ -42,7 +42,7 @@ zip_safe = False
 
 requires = ('pyramid<1.3a', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
             'Babel', 'recaptcha-client', 'WebHelpers', 'Mako',
-            'aybu-core', 'aybu-themes',  'pyramid_mailer')
+            'aybu-core', 'aybu-themes',  'pyramid_mailer', 'pyramid_exclog')
 
 tests_require = ('nose', 'coverage', 'webtest', 'aybu-instances-website-tests')
 setup_requires = ('versiontools >= 1.8',)
