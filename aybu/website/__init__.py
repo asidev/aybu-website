@@ -64,10 +64,10 @@ def add_subscribers(config):
 
 
 def add_routes(config):
-
     config.add_route('favicon', '/favicon.ico')
     config.add_route('robots', '/robots.txt')
     config.add_route('sitemap', '/sitemap.xml')
+    config.add_route('contact_post', pattern='/contact',request_method='POST')
 
     # Put URL dispatch configuration statements before Traversal ones!!!
     config.add_route('root', '/*traverse', factory=get_root_resource)
@@ -86,6 +86,9 @@ def add_views(config):
     config.add_view(route_name='sitemap',
                     renderer='/base/sitemap.mako',
                     view='aybu.website.views.sitemap')
+    config.add_view(route_name='contact_post',
+                    renderer='json',
+                    view='aybu.website.views.contact_post')
 
     # Views called after Traversal.
 

@@ -26,11 +26,12 @@ from pyramid.renderers import render_to_response
 
 def show_page(context, request):
     # FIXME: add query options to eager load: NodeInfo.Node.View.
-    if request.method == "POST" and context.node.view.name == u'CONTACTS':
-        handle_contact_form(request)
     return render_to_response(context.node.view.fs_view_path,
                               {'page': context},
                               request=request)
+
+def contact_post(context, request):
+    return handle_contact_form(request)
 
 def favicon(request):
     raise HTTPMovedPermanently('/static/favicon.ico')
