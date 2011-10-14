@@ -8,14 +8,15 @@ Copyright © 2010 Asidev s.r.l. - www.asidev.com
 import logging
 import re
 
-from aybu.core.models import Setting, Language
-from recaptcha.client.captcha import submit
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
+import recaptcha
+
+from aybu.core.models import Setting, Language
 
 log = logging.getLogger(__name__)
 email_re = re.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-name_re = re.compile("[(0-9@*(\)[\]+.,/?:;\"`~\\#$%^&<>)+]")
+name_re = re.compile("[(0-9@*(\)[\]+.,/?:;\"`~\\\#$%^&<>)+]")
 phone_re = re.compile("^(\+){0,1}([0-9-()]|( ))+$")
 
 
@@ -39,7 +40,10 @@ def validate_captcha(response, challenge, remote_addr):
     result = dict(error={}, success=True)
 
     try:
-        recaptcha_response = submit(challenge, response,  private_key, remote_addr)
+        recaptcha_response = recaptcha.client.captcha.submit(challenge,
+                                                             response,
+                                                             private_key,
+                                                             remote_addr)
 
         if not recaptcha_response.is_valid:
             result['error']['captcha'] = u"Il testo da lei inserito non " +\
