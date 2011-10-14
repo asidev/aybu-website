@@ -17,8 +17,16 @@ limitations under the License.
 """
 
 from aybu.core.models import Language, Setting, SettingType
-import aybu.website.lib.contact_utils as cu
 from . test_base import BaseTests
+import collections
+
+import recaptcha.client.captcha
+Response = collections.namedtuple('Response', ['is_valid'])
+def closure(challenge, response, private_key, remote_addr):
+    return Response(is_valid=True)
+
+recaptcha.client.captcha.submit = closure
+import aybu.website.lib.contact_utils as cu
 
 
 class ContactTest(BaseTests):
@@ -54,3 +62,8 @@ class ContactTest(BaseTests):
         test_string('My Long Name', True)
         for c in '@*()[]+.,/?:;"`~\#$%^&<>':
             test_string('test' + c)
+
+    def test_mocking(self):
+
+        res = cu.validate_captcha('bogus', 'bogus', 'bogus')
+        self.assertTrue(res['success'])
