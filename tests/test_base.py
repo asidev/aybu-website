@@ -71,13 +71,13 @@ class BaseTests(unittest.TestCase):
         self.ctx = testing.DummyResource()
         self.config = testing.setUp(request=self.req)
         self.req.registry = self.config.registry
+        self.config.include('pyramid_mailer.testing')
 
     def tearDown(self):
         self.session.remove()
         Session.close_all()
         testing.tearDown()
         Base.metadata.drop_all(self.engine)
-
 
 
 class FunctionalBase(unittest.TestCase):

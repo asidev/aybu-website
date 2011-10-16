@@ -33,6 +33,7 @@ def show_page(context, request):
 def contact_post(context, request):
     return handle_contact_form(request)
 
+
 def favicon(request):
     raise HTTPMovedPermanently('/static/favicon.ico')
 
