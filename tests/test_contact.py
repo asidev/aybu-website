@@ -90,28 +90,17 @@ class ContactTest(BaseTests):
         self.assertFalse(res['success'])
         self.assertIn('captcha', res['error'])
 
+    def _submit(self, params, success=True, error_field=''):
+        req = self.new_req(params)
+        res = cu.handle_contact_form(req)
+        if success:
+            self.assertTrue(res['success'])
+        else:
+            self.assertFalse(res['success'])
+            self.assertIn(error_field, res['error'])
+        return res
 
-    def test_handle_contact_form(self):
-        def test_submit(params, success=True, error_field=''):
-            req = self.new_req(params)
-            res = cu.handle_contact_form(req)
-            if success:
-                self.assertTrue(res['success'])
-            else:
-                self.assertFalse(res['success'])
-                self.assertIn(error_field, res['error'])
-
-        self.add_languages_to_db()
-
-        # test empty
-        res = cu.handle_contact_form(self.req)
-        form_keys = ('name', 'surname', 'email', 'phone', 'agreement',
-                     'message', 'captcha')
-        self.assertFalse(res['success'])
-        for key in form_keys:
-            self.assertIn(key, res['error'])
-
-        # test valid
+    def _get_valid_params(self):
         valid_phone = '3334445556'
         valid_agreement = 'on'
         valid_message = 'a message longer than 10 chars'
@@ -126,28 +115,53 @@ class ContactTest(BaseTests):
         params['message'] = valid_message
         params['recaptcha_response_field'] = 'bogus'
         params['recaptcha_challenge_field'] = 'bogus'
-        test_submit(params)
+        return params
 
-        # test email
+    def test_empty_contact_form(self):
+        self.add_languages_to_db()
+
+        # test empty
+        res = cu.handle_contact_form(self.req)
+        form_keys = ('name', 'surname', 'email', 'phone', 'agreement',
+                     'message', 'captcha')
+        self.assertFalse(res['success'])
+        for key in form_keys:
+            self.assertIn(key, res['error'])
+
+    def test_valid(self):
+        self._submit(self._get_valid_params())
+
+    def test_valid_send(self):
+        self.add_languages_to_db()
+        self.add_recipient('test@example.com')
+        self._submit(self._get_valid_params())
+
+    def test_valid_send_add_fields(self):
+        self.add_languages_to_db()
+        self.add_recipient('test@example.com')
+        params = self._get_valid_params()
+        params['extra'] = 'extra field'
+        res = self._submit(params)
+        self.assertIn('extra', res['vars'])
+
+    def test_email(self):
+        params = self._get_valid_params()
         for email in ('add', '@dom', 'add@adom', 'aad@dom.', '.@dom.it',
                        'add@dom..it'):
-#            print "Testing email %s" % email
+            self.log.info("Testing email %s", email)
             params['email'] = email
-            test_submit(params, False, 'email')
-        params['email'] = valid_email
+            self._submit(params, False, 'email')
 
-        # test phone
-        for phone in ('+393334445', '+(39)3334445', '333444555'):
-#            print "Testing phone %s" % phone
+    def test_phone(self):
+        params = self._get_valid_params()
+        for phone in ('+393334445566', '3334445566', '333-4445566',
+                      '333 4445566', '0206999000', '0571/33445'):
+            self.log.info("Testing phone %s", phone)
             params['phone'] = phone
-            test_submit(params)
+            self._submit(params)
 
-#        for phone in ('3', 'asklaksl', '-333444555',):
-#            print "Testing phone %s" % phone
-#            params['phone'] = phone
-#            test_submit(params, False, 'phone')
+        for phone in ('3', 'asklaksl', '-3334445566', '+(39)3334445566'):
+            self.log.info("Testing phone %s", phone)
+            params['phone'] = phone
+            self._submit(params, False, 'phone')
 
-
-
-
-        self.add_recipient('test@example.com')

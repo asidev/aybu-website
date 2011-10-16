@@ -20,6 +20,7 @@ import json
 import unittest
 import ConfigParser
 import os
+import logging
 
 from pyramid import testing
 
@@ -72,6 +73,7 @@ class BaseTests(unittest.TestCase):
         self.config = testing.setUp(request=self.req)
         self.req.registry = self.config.registry
         self.config.include('pyramid_mailer.testing')
+        self.log = logging.getLogger(self.__class__.__name__)
 
     def tearDown(self):
         self.session.remove()
