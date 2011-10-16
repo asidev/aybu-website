@@ -17,7 +17,7 @@ from aybu.core.models import Setting, Language
 log = logging.getLogger(__name__)
 email_re = re.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
 name_re = re.compile("[(0-9@*(\)[\]+.,/?:;\"`~\\\#$%^&<>)+]")
-phone_re = re.compile("^(\+){0,1}([0-9-()]|( ))+$")
+phone_re = re.compile(r"^(\+)?([0-9]{2}([ /-])?)?[0-9]([ 0-9-])+")
 
 
 def validate_name(field, value):
