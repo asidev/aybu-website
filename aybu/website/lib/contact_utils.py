@@ -110,8 +110,10 @@ def handle_contact_form(request):
         body = u"%sCognome : %s \n" % (body, request.params.get('surname'))
         body = u"%sTelefono : %s \n\n" % (body, request.params.get('phone'))
 
+        # add additional post data in the message body
         for key, value in request.params.iteritems():
-            if key not in form_keys and not key.startswith("recaptcha"):
+            if key not in form_keys and not key.startswith("recaptcha") and\
+               not key == '_lang':
                 p = key.decode('utf8')
                 body = u"%s%s : %s \n" % (body, p.title(), value)
                 result['vars'][key] = value
