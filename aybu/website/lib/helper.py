@@ -60,7 +60,7 @@ class TemplateHelper(object):
 
     def url(self, url, *args, **kwargs):
         import inspect
-        log.error("Called %s.url with params: '%s', '%s', '%s'",
+        log.debug("Called %s.url with params: '%s', '%s', '%s'",
                     __name__, url, args, kwargs)
         try:
             frame = inspect.stack()[1]
