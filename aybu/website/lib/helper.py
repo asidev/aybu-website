@@ -64,11 +64,11 @@ class TemplateHelper(object):
                     __name__, url, args, kwargs)
         try:
             frame = inspect.stack()[1]
-            log.error("Called from: %s'", frame)
+            log.debug("Called from: %s'", frame)
             return url
 
         except Exception as e:
-            log.debug('url helper does not work! %s', e)
+            log.error('url helper does not work! %s', e)
 
         finally:
             del frame
