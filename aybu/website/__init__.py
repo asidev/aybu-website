@@ -21,6 +21,7 @@ from aybu.core.models import Base, File, Image
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.settings import asbool
 from sqlalchemy import engine_from_config
 from sqlalchemy.ext.sqlsoup import SqlSoup
 from sqlalchemy.orm.exc import NoResultFound
@@ -104,19 +105,21 @@ def add_views(config):
                     context='aybu.core.models.NodeInfo',
                     view='aybu.website.views.show_page')
 
-    config.add_view(route_name='root',
-                    context=None,
-                    renderer='/errors/404.mako',
-                    view='aybu.website.views.show_not_found_error')
+    if not asbool(config.registry.settings['debug']):
+        # add 404 pretty handling only for production
+        config.add_view(route_name='root',
+                        context=None,
+                        renderer='/errors/404.mako',
+                        view='aybu.website.views.show_not_found_error')
 
-    config.add_view(route_name='root',
-                    context=NoResultFound,
-                    renderer='/errors/404.mako',
-                    view='aybu.website.views.show_not_found_error')
+        config.add_view(route_name='root',
+                        context=NoResultFound,
+                        renderer='/errors/404.mako',
+                        view='aybu.website.views.show_not_found_error')
 
-    config.add_view(context=HTTPNotFound,
-                    renderer='/errors/404.mako',
-                    view='aybu.website.views.show_not_found_error')
+        config.add_view(context=HTTPNotFound,
+                        renderer='/errors/404.mako',
+                        view='aybu.website.views.show_not_found_error')
 
 
 def add_assets(config):

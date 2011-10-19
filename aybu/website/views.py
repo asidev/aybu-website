@@ -49,6 +49,7 @@ def robots(context, request):
 
 
 def show_not_found_error(context, request):
+    request.response.status_int = 404
     return {}
 
 

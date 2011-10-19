@@ -16,9 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from collections import namedtuple
-from aybu.core.models import Language, PageInfo
 import logging
+from collections import namedtuple
+from pyramid.httpexceptions import HTTPNotFound
+from aybu.core.models import Language, PageInfo
 
 
 __all__ = []
@@ -47,8 +48,12 @@ def get_root_resource(request):
         log.debug('Return NoLanguage context.')
         return NoLanguage()
 
-    request.language = Language.get_by_lang(request.db_session,
+    language = Language.get_by_lang(request.db_session,
                                             url_parts[0].part)
+    request.language = language
+    if language is None:
+        # language not found, return a 404
+        raise HTTPNotFound()
 
     if len(url_parts) == 1:
         # URL is like '/{lang}'.

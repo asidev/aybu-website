@@ -34,6 +34,22 @@ log = logging.getLogger(__name__)
 CSS = namedtuple('CSS', ['href', 'media'])
 JS = namedtuple('JS', ['href'])
 
+class NodeNotFound(object):
+    """ A class mocking a translation when no translations
+        are found for a given url (i.e. in 404)
+    """
+    def __init__(self, request):
+        self.meta_description = ''
+        self.parent = request.db_session.query(Menu).first()
+        self.banners = []
+        self.lang = request.language
+        self.translations = [self]
+        self.title = 'Pagina Non Trovata'
+        self.head_content = ''
+        self.id = -1
+        self.node = self
+        self.children = []
+
 
 class TemplateHelper(object):
 
@@ -52,8 +68,9 @@ class TemplateHelper(object):
             else:
                 self._node = self._language = None
         else:
-            self._node = None
-            self._translation = None
+            self._translation = NodeNotFound(request)
+            self._node = NodeProxy(self._translation)
+            self._language = request.language
 
     def static_url(self, resource_url):
         return str('/static%s' % resource_url)
@@ -315,4 +332,6 @@ class NodeInfoProxy(object):
             return NodeProxy(self.node.linked_to)[self.lang].url
         elif isinstance(self._info.node, ExternalLink):
             return self._info.ext_url
-        raise TypeException('Cannot identify NodeInfo type!')
+        elif isinstance(self._info.node, NodeNotFound):
+            return ''
+        raise TypeError('Cannot identify NodeInfo type!')
