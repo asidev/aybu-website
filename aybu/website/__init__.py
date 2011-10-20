@@ -62,6 +62,8 @@ def add_subscribers(config):
 
     config.add_subscriber('aybu.website.lib.subscriber.add_renderer_globals',
                           'pyramid.events.BeforeRender')
+    config.add_subscriber('aybu.website.lib.subscriber.context_found',
+                          'pyramid.events.ContextFound')
 
 
 def add_routes(config):
