@@ -17,7 +17,7 @@ limitations under the License.
 """
 
 from aybu.core.utils.request import Request
-from aybu.core.models import Base, File, Image
+from aybu.core.models import Base, File, Image, Banner
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
@@ -240,19 +240,32 @@ def add_assets(config):
                 log.critical("*" * 79)
 
             # Setup Pufferfish entities
-            File.private_path = upload_path
-            Image.private_path = upload_path
-            File.base_path = os.path.join(upload_path, "files")
-            Image.base_path = os.path.join(upload_path, "images")
-            try:
-                os.mkdir(File.base_path)
-            except OSError:
-                pass
-            try:
-                os.mkdir(Image.base_path)
-            except OSError:
-                pass
+            file_base = os.path.join(upload_path, "files")
+            image_base = os.path.join(upload_path, "images")
+            banner_base = os.path.join(upload_path, "banners")
 
+            File.initialize(base=file_base,  private=upload_path)
+            Image.initialize(base=image_base, private=upload_path)
+            Banner.initialize(base=banner_base,private=upload_path)
+
+            img_fsize = db.settings.filter(
+                            db.settings.name == u'image_full_size').one().value
+            Image.set_sizes(full=(img_fsize, img_fsize * 3),
+                            thumbs=dict(thumb=(120,120)))
+            banner_width = db.settings.filter(
+                            db.settings.name == u'banner_width').one().value
+            banner_height = db.settings.filter(
+                            db.settings.name == u'banner_height').one().value
+            Banner.set_sizes(full=(banner_width, banner_height))
+
+
+            for dir_ in (file_base, image_base, banner_base):
+                try:
+                    os.mkdir(dir_)
+                except OSError as e:
+                    if e.errno != 17:
+                        log.exception("Cannot create directory %s", dir_)
+                        raise e
 
     except KeyError as e:
         log.critical("*" * 79)
