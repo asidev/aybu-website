@@ -66,8 +66,7 @@ class BaseTests(unittest.TestCase):
         self.engine = engine_from_config_parser(parser,
                                                 'app:aybu-website')
         self.session = create_session(self.engine)
-        AybuRequest.db_session = self.session
-        AybuRequest.db_engine = self.engine
+        AybuRequest.set_db_engine(self.engine)
         self.req = AybuRequest({})
         self.ctx = testing.DummyResource()
         self.config = testing.setUp(request=self.req)
