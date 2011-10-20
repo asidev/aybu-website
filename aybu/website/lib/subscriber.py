@@ -19,8 +19,12 @@ limitations under the License.
 from aybu.website.lib.helper import TemplateHelper
 
 def add_renderer_globals(event):
-    h = event['request'].template_helper
-    del event['request'].template_helper
+    if hasattr(event['request'], "template_helper"):
+        h = event['request'].template_helper
+        del event['request'].template_helper
+    else:
+        h = TemplateHelper(event['request'])
+
     event['_'] = event['request'].translate
     event['localizer'] = event['request'].localizer
     event['h'] = h
