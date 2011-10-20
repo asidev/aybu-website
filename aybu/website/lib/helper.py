@@ -27,6 +27,7 @@ from recaptcha.client.captcha import displayhtml
 from webhelpers.html.builder import literal
 import logging
 import ast
+import collections
 
 log = logging.getLogger(__name__)
 
@@ -144,9 +145,11 @@ class TemplateHelper(object):
         return literal(html)
 
 
+
 class SettingProxy(object):
 
     def __init__(self, session):
+        Proxy = collections.namedtuple('Proxy', ['name', 'value'])
         self._settings = {}
         for setting in Setting.get_all(session):
 
@@ -159,8 +162,8 @@ class SettingProxy(object):
                 else:
                     value = eval(raw_type)(setting.value)
 
-            self._settings[setting.name] = setting
-            self._settings[setting.name].value = value
+            self._settings[setting.name] = Proxy(name=setting.name,
+                                                 value=value)
 
     def __getattr__(self, attr_name):
 
