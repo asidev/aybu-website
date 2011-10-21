@@ -24,9 +24,9 @@ from aybu.core.models import Setting
 from collections import deque
 from collections import namedtuple
 from recaptcha.client.captcha import displayhtml
+from sqlalchemy.orm.exc import NoResultFound
 from webhelpers.html.builder import literal
 import logging
-import ast
 import collections
 
 log = logging.getLogger(__name__)
@@ -149,32 +149,24 @@ class TemplateHelper(object):
 class SettingProxy(object):
 
     def __init__(self, session):
-        Proxy = collections.namedtuple('Proxy', ['name', 'value'])
+        self.session = session
         self._settings = {}
-        for setting in Setting.get_all(session):
-
-            raw_type = setting.type.raw_type
-            value = setting.value
-
-            if raw_type != "unicode":
-                if raw_type == "bool":
-                    value = ast.literal_eval(str(setting.value))
-                else:
-                    value = eval(raw_type)(setting.value)
-
-            self._settings[setting.name] = Proxy(name=setting.name,
-                                                 value=value)
 
     def __getattr__(self, attr_name):
 
-        if not attr_name in self._settings:
-            raise AttributeError("Setting '%s' doesn't exist!" % attr_name)
+        try:
+            return self._settings[attr_name].value
+        except KeyError:
+            try:
+                self._settings[attr_name] = Setting.get(self.session, attr_name)
+                return self._settings[attr_name].value
+            except NoResultFound:
+                msg = "Setting '%s' doesn't exist!" % attr_name
+                log.error(msg)
+                raise AttributeError(msg)
 
-        return self._settings[attr_name].value
-
-    def __getitem__(self, attr_name):
-        return getattr(self, attr_name)
-
+    def __getitem__(self, attr):
+        return getattr(self, attr)
 
 class MenuProxy(object):
 
