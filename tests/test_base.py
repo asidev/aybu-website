@@ -65,7 +65,8 @@ class BaseTests(unittest.TestCase):
         parser = read_config()
         self.engine = engine_from_config_parser(parser,
                                                 'app:aybu-website')
-        self.session = create_session(self.engine)
+        self.Session = create_session(self.engine)
+        self.session = self.Session()
         AybuRequest.set_db_engine(self.engine)
         self.req = AybuRequest({})
         self.ctx = testing.DummyResource()
@@ -75,10 +76,10 @@ class BaseTests(unittest.TestCase):
         self.log = logging.getLogger(self.__class__.__name__)
 
     def tearDown(self):
-        self.session.remove()
+        self.session.close()
+        self.Session.remove()
         Session.close_all()
         testing.tearDown()
-        Base.metadata.drop_all(self.engine)
 
 
 class FunctionalBase(unittest.TestCase):
