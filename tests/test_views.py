@@ -121,7 +121,12 @@ class ViewTests(BaseTests):
 
         with self.assertRaises(HTTPMovedPermanently) as cm:
             redirect_to_homepage(self.ctx, self.req)
-        self.assertEqual(cm.exception.location, hpage_it.url)
+
+        if self.config.registry.settings['default_locale_name'] == 'it':
+            self.assertEqual(cm.exception.location, hpage_it.url)
+
+        elif self.config.registry.settings['default_locale_name'] == 'en':
+            self.assertEqual(cm.exception.location, hpage_en.url)
 
         self.req.accept_language = "en-US,en"
         with self.assertRaises(HTTPMovedPermanently) as cm:
