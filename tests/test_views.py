@@ -118,16 +118,19 @@ class ViewTests(BaseTests):
         hpage_it = PageInfo.get(self.session, 3)
         hpage_en = PageInfo.get(self.session, 4)
 
-
         with self.assertRaises(HTTPMovedPermanently) as cm:
             redirect_to_homepage(self.ctx, self.req)
-
-        self.assertEqual(cm.exception.location, hpage_it.url)
+        self.assertEqual(cm.exception.location, hpage_en.url)
 
         self.req.accept_language = "en-US,en"
         with self.assertRaises(HTTPMovedPermanently) as cm:
             redirect_to_homepage(self.ctx, self.req)
         self.assertEqual(cm.exception.location, hpage_en.url)
+
+        self.req.accept_language = "it-IT,it"
+        with self.assertRaises(HTTPMovedPermanently) as cm:
+            redirect_to_homepage(self.ctx, self.req)
+        self.assertEqual(cm.exception.location, hpage_it.url)
 
         self.session.commit()
 
