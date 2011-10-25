@@ -115,18 +115,14 @@ class ViewTests(BaseTests):
     def test_redirect_to_homepage(self):
         from aybu.website.views import redirect_to_homepage
         self.add_test_data_to_db()
-        hpage_it = self.session.query(PageInfo).filter(PageInfo.id == 3).one()
-        hpage_en = self.session.query(PageInfo).filter(PageInfo.id == 4).one()
+        hpage_it = PageInfo.get(self.session, 3)
+        hpage_en = PageInfo.get(self.session, 4)
 
 
         with self.assertRaises(HTTPMovedPermanently) as cm:
             redirect_to_homepage(self.ctx, self.req)
 
-        if self.config.registry.settings['default_locale_name'] == 'it':
-            self.assertEqual(cm.exception.location, hpage_it.url)
-
-        elif self.config.registry.settings['default_locale_name'] == 'en':
-            self.assertEqual(cm.exception.location, hpage_en.url)
+        self.assertEqual(cm.exception.location, hpage_it.url)
 
         self.req.accept_language = "en-US,en"
         with self.assertRaises(HTTPMovedPermanently) as cm:
@@ -139,7 +135,7 @@ class ViewTests(BaseTests):
     def test_show_page(self):
         from aybu.website.views import show_page
         self.add_test_data_to_db()
-        self.ctx = self.session.query(PageInfo).filter(PageInfo.id == 3).one()
+        self.ctx = PageInfo.get(self.session, 3)
         dummy_rendererer = self.config.testing_add_renderer(
                                         self.ctx.node.view.fs_view_path)
         show_page(self.ctx, self.req)
