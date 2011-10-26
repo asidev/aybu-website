@@ -27,11 +27,9 @@ from recaptcha.client.captcha import displayhtml
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers.html.builder import literal
 import logging
-import collections
+
 
 log = logging.getLogger(__name__)
-
-
 CSS = namedtuple('CSS', ['href', 'media'])
 JS = namedtuple('JS', ['href'])
 
@@ -60,6 +58,9 @@ class TemplateHelper(object):
         self._menus = MenuProxy(self._request.db_session)
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                       True)
+
+        self._rendering_type = 'dynamic'
+
         if hasattr(self._request, "context"):
             self._translation = self._request.context
             node = getattr(self._translation, 'node', None)
@@ -101,7 +102,13 @@ class TemplateHelper(object):
 
     @property
     def rendering_type(self):
-        return 'dynamic'
+        return self._rendering_type
+
+    @rendering_type.setter
+    def rendering_type(self, value):
+        if value not in ('static', 'dynamic'):
+            raise ValueError('Invalid rendering_type %s' % value)
+        self._rendering_type = value
 
     @property
     def user(self):
@@ -137,13 +144,9 @@ class TemplateHelper(object):
         return urlify(name)
 
     def captcha(self, error=None):
-
         #public_key = '6LeNHcYSAAAAAKHbUX4bGAE-DE_0fR_J0nynW1OR'
-
         html = displayhtml('6LeNHcYSAAAAAKHbUX4bGAE-DE_0fR_J0nynW1OR', error)
-
         return literal(html)
-
 
 
 class SettingProxy(object):
