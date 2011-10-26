@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from aybu.core.utils.request import Request
+from aybu.core.request import Request
 from aybu.core.models import Base, File, Image, Banner
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
