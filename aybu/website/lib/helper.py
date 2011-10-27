@@ -88,21 +88,6 @@ class TemplateHelper(object):
     def static_url(self, resource_url):
         return str('/static%s' % resource_url)
 
-    def url(self, url, *args, **kwargs):
-        import inspect
-        log.debug("Called %s.url with params: '%s', '%s', '%s'",
-                    __name__, url, args, kwargs)
-        try:
-            frame = inspect.stack()[1]
-            log.debug("Called from: %s'", frame)
-            return url
-
-        except Exception as e:
-            log.error('url helper does not work! %s', e)
-
-        finally:
-            del frame
-
     @property
     def literal(self):
         return literal

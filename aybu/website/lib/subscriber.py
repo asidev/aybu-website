@@ -29,8 +29,6 @@ def add_renderer_globals(event):
     event['localizer'] = event['request'].localizer
     event['h'] = h
     event['c'] = h
-    event['url'] = event['h'].url
-
 
 def context_found(event):
     event.request.template_helper = TemplateHelper(event.request)
