@@ -27,6 +27,7 @@ from recaptcha.client.captcha import displayhtml
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers.html.builder import literal
 import logging
+import warnings
 
 
 log = logging.getLogger(__name__)
@@ -60,15 +61,25 @@ class TemplateHelper(object):
                                                       True)
 
         self._rendering_type = 'dynamic'
+        # old heka legacy. Remove ASAP
+        self.section = None
+        self.subsection = None
+        self.page = None
 
         if hasattr(self._request, "context"):
             self._translation = self._request.context
             node = getattr(self._translation, 'node', None)
+            def_lang_name = self._request.registry.settings['default_locale_name']
+            def_language = self._request.db_session.query(Language)\
+                .filter(Language.lang == def_lang_name)
             if not node is None:
                 self._node = NodeProxy(node)
                 self._language = getattr(self._request.context, 'lang', None)
             else:
-                self._node = self._language = None
+                self._node = None
+                warnings.warn('FIXME: Use language from session instead of the'
+                              ' default one')
+                self._language = def_language.one()
         else:
             self._translation = NodeNotFound(request)
             self._node = NodeProxy(self._translation)
@@ -120,6 +131,10 @@ class TemplateHelper(object):
             raise ValueError('Node is None')
 
         return self._node
+
+    @node.setter
+    def node(self, value):
+        self._node = NodeProxy(value)
 
     @property
     def languages(self):
