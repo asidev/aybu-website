@@ -17,7 +17,11 @@ limitations under the License.
 """
 
 from aybu.core.request import Request
-from aybu.core.models import Base, File, Image, Banner
+from aybu.core.models import (Base,
+                              File,
+                              Image,
+                              Logo,
+                              Banner)
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
@@ -245,23 +249,30 @@ def add_assets(config):
             file_base = os.path.join(upload_path, "files")
             image_base = os.path.join(upload_path, "images")
             banner_base = os.path.join(upload_path, "banners")
+            logo_base = os.path.join(upload_path, "logo")
 
             File.initialize(base=file_base,  private=upload_path)
             Image.initialize(base=image_base, private=upload_path)
-            Banner.initialize(base=banner_base,private=upload_path)
+            Banner.initialize(base=banner_base, private=upload_path)
+            Logo.initialize(base=logo_base, private=upload_path)
 
             img_fsize = db.settings.filter(
                             db.settings.name == u'image_full_size').one().value
             Image.set_sizes(full=(img_fsize, img_fsize * 3),
                             thumbs=dict(thumb=(120,120)))
-            banner_width = db.settings.filter(
-                            db.settings.name == u'banner_width').one().value
-            banner_height = db.settings.filter(
-                            db.settings.name == u'banner_height').one().value
+            banner_width = int(db.settings.filter(
+                            db.settings.name == u'banner_width').one().value)
+            banner_height = int(db.settings.filter(
+                            db.settings.name == u'banner_height').one().value)
+            logo_height = int(db.settings.filter(
+                            db.settings.name == u'logo_height').one().value)
+            logo_width = int(db.settings.filter(
+                            db.settings.name == u'logo_width').one().value)
+
             Banner.set_sizes(full=(banner_width, banner_height))
+            Logo.set_sizes(full=(logo_width, logo_height))
 
-
-            for dir_ in (file_base, image_base, banner_base):
+            for dir_ in (file_base, image_base, banner_base, logo_base):
                 try:
                     os.mkdir(dir_)
                 except OSError as e:
