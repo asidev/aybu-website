@@ -108,7 +108,7 @@ class TemplateHelper(object):
 
     @property
     def user(self):
-        return None
+        return self._request.user
 
     @property
     def node(self):
