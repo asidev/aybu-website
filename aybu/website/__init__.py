@@ -77,7 +77,7 @@ def add_routes(config):
     config.add_route('contact_post', pattern='/contact',request_method='POST')
 
     # Put URL dispatch configuration statements before Traversal ones!!!
-    config.add_route('root', '/*traverse', factory=get_root_resource)
+    config.add_route('pages', '/*traverse', factory=get_root_resource)
 
 
 def add_views(config):
@@ -99,26 +99,26 @@ def add_views(config):
 
     # Views called after Traversal.
 
-    config.add_view(route_name='root',
+    config.add_view(route_name='pages',
                     context='aybu.website.resources.NoLanguage',
                     view='aybu.website.views.choose_default_language')
 
-    config.add_view(route_name='root',
+    config.add_view(route_name='pages',
                     context='aybu.core.models.Language',
                     view='aybu.website.views.redirect_to_homepage')
 
-    config.add_view(route_name='root',
+    config.add_view(route_name='pages',
                     context='aybu.core.models.NodeInfo',
                     view='aybu.website.views.show_page')
 
     if not asbool(config.registry.settings['debug']):
         # add 404 pretty handling only for production
-        config.add_view(route_name='root',
+        config.add_view(route_name='pages',
                         context=None,
                         renderer='/errors/404.mako',
                         view='aybu.website.views.show_not_found_error')
 
-        config.add_view(route_name='root',
+        config.add_view(route_name='pages',
                         context=NoResultFound,
                         renderer='/errors/404.mako',
                         view='aybu.website.views.show_not_found_error')

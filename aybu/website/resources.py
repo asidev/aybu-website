@@ -20,6 +20,7 @@ import logging
 from collections import namedtuple
 from pyramid.httpexceptions import HTTPNotFound
 from aybu.core.models import Language, PageInfo
+from sqlalchemy.orm.exc import NoResultFound
 
 
 __all__ = []
@@ -32,13 +33,14 @@ UrlPart = namedtuple('UrlPart', ['part', 'resource'])
 
 def get_root_resource(request):
 
-    log.debug('get_root_resource: %s', request.path_info)
+    path_info = request.path_info
+    log.debug('get_root_resource: %s', path_info)
 
     # Getting url_parts and for each part associating a Resource
     # On request.path_info applying strip('/') remove the initial / so
     # with the following split('/') we obtain a list just with parts
     url_parts = [UrlPart(part=url_part, resource=Resource())
-                 for url_part in request.path_info.strip('/').split('/')
+                 for url_part in path_info.strip('/').split('/')
                  if url_part]
 
     log.debug('url_parts: %s', url_parts)
@@ -48,11 +50,17 @@ def get_root_resource(request):
         log.debug('Return NoLanguage context.')
         return NoLanguage()
 
+    if url_parts[0].part == 'admin':
+        log.debug("In admin panel, removing admin")
+        url_parts = url_parts[1:]
+        path_info = path_info.replace('/admin', '')
+
     language = Language.get_by_lang(request.db_session,
                                             url_parts[0].part)
     request.language = language
     if language is None:
         # language not found, return a 404
+        log.debug("No language found")
         raise HTTPNotFound()
 
     if len(url_parts) == 1:
@@ -64,12 +72,15 @@ def get_root_resource(request):
     else:
         # URL is like '/{lang}/{node}/[...]/{page}[.ext]
         # Get the NodeInfo from database using path_info.
-        log.debug('Get Context by NodeInfo %s.', request.path_info)
-        url_parts[-1] = UrlPart(part=url_parts[-1].part,
-                                resource=PageInfo.get_by_url(
-                                                    request.db_session,
-                                                    request.path_info)
-                               )
+        log.debug('Get Context by NodeInfo %s.', path_info)
+        try:
+            url_parts[-1] = UrlPart(part=url_parts[-1].part,
+                                    resource=PageInfo.get_by_url(
+                                                        request.db_session,
+                                                        path_info)
+                                )
+        except NoResultFound:
+            return HTTPNotFound()
 
     # Create the resources tree.
     # The last element in resources tree is the request context.

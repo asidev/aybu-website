@@ -69,17 +69,19 @@ class TemplateHelper(object):
         if hasattr(self._request, "context"):
             self._translation = self._request.context
             node = getattr(self._translation, 'node', None)
-            def_lang_name = self._request.registry.settings['default_locale_name']
-            def_language = self._request.db_session.query(Language)\
-                .filter(Language.lang == def_lang_name)
             if not node is None:
                 self._node = NodeProxy(node)
                 self._language = getattr(self._request.context, 'lang', None)
             else:
                 self._node = None
-                warnings.warn('FIXME: Use language from session instead of the'
-                              ' default one')
-                self._language = def_language.one()
+                if 'lang' in request.session:
+                    lang = request.session['lang']
+                    self._language = request.db_session.merge(lang)
+                else:
+                    lang = self._request.registry.settings['default_locale_name']
+                    def_language = self._request.db_session.query(Language)\
+                                    .filter(Language.lang == lang)
+                    self._language = def_language.one()
         else:
             self._translation = NodeNotFound(request)
             self._node = NodeProxy(self._translation)
