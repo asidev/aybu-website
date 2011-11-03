@@ -29,6 +29,7 @@ from pyramid.settings import asbool
 from sqlalchemy import engine_from_config
 from sqlalchemy.ext.sqlsoup import SqlSoup
 from sqlalchemy.orm.exc import NoResultFound
+import pyramid.security
 import logging
 import os
 import pkg_resources
@@ -109,6 +110,7 @@ def add_views(config):
 
     config.add_view(route_name='pages',
                     context='aybu.core.models.NodeInfo',
+                    permission=pyramid.security.ALL_PERMISSIONS,
                     view='aybu.website.views.show_page')
 
     if not asbool(config.registry.settings['debug']):
