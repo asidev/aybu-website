@@ -21,6 +21,10 @@ from collections import namedtuple
 from pyramid.httpexceptions import HTTPNotFound
 from aybu.core.models import Language, PageInfo
 from sqlalchemy.orm.exc import NoResultFound
+from aybu.core.authentication import Authenticated
+from pyramid.security import (Allow,
+                              Everyone,
+                              ALL_PERMISSIONS)
 
 
 __all__ = []
@@ -50,10 +54,12 @@ def get_root_resource(request):
         log.debug('Return NoLanguage context.')
         return NoLanguage()
 
+    need_auth = False
     if url_parts[0].part == 'admin':
         log.debug("In admin panel, removing admin")
         url_parts = url_parts[1:]
         path_info = path_info.replace('/admin', '')
+        need_auth = True
 
     language = Language.get_by_lang(request.db_session,
                                             url_parts[0].part)
@@ -85,11 +91,19 @@ def get_root_resource(request):
     # Create the resources tree.
     # The last element in resources tree is the request context.
     tmp = root = Resource()
+    parent = None
+    acl = [(Allow, Everyone, ALL_PERMISSIONS)]
+    if need_auth:
+        acl = Authenticated.__acl__
+
     for url_part, resource in url_parts:
+        resource.__parent__ = parent
+        resource.__acl__ = acl
+        parent = resource
         tmp[url_part] = resource
         tmp = tmp[url_part]
-
-    log.debug('The root resource is: %s', root)
+        log.debug("Resource: %s, acl: %s, parent: %s",
+                  resource, resource.__acl__, resource.__parent__)
 
     return root
 
@@ -104,4 +118,3 @@ class Resource(dict):
         This class is a basic resource.
         it is needed to build ACL, do NOT use for requests context!
     """
-    pass
