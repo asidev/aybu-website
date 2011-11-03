@@ -27,7 +27,6 @@ from recaptcha.client.captcha import displayhtml
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers.html.builder import literal
 import logging
-import warnings
 
 
 log = logging.getLogger(__name__)
@@ -71,24 +70,18 @@ class TemplateHelper(object):
             node = getattr(self._translation, 'node', None)
             if not node is None:
                 self._node = NodeProxy(node)
-                self._language = getattr(self._request.context, 'lang', None)
             else:
                 self._node = None
-                if 'lang' in request.session:
-                    lang = request.session['lang']
-                    self._language = request.db_session.merge(lang)
-                else:
-                    lang = self._request.registry.settings['default_locale_name']
-                    def_language = self._request.db_session.query(Language)\
-                                    .filter(Language.lang == lang)
-                    self._language = def_language.one()
         else:
             self._translation = NodeNotFound(request)
             self._node = NodeProxy(self._translation)
-            self._language = request.language
 
     def static_url(self, resource_url):
         return str('/static%s' % resource_url)
+
+    @property
+    def lang(self):
+        return self._request.language
 
     @property
     def literal(self):
@@ -126,13 +119,6 @@ class TemplateHelper(object):
     @property
     def languages(self):
         return self._languages
-
-    @property
-    def lang(self):
-        if self._language is None:
-            raise ValueError('Language is None')
-
-        return self._language
 
     @property
     def menus(self):
