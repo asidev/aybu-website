@@ -263,8 +263,10 @@ def add_assets(config):
             Logo.initialize(base=logo_base, private=instance_static_path,
                             url_prefix=prefix)
 
-            img_fsize = db.settings.filter(
-                            db.settings.name == u'image_full_size').one().value
+            img_fsize = int(
+                db.settings.filter(
+                        db.settings.name == u'image_full_size').one().value
+            )
             Image.set_sizes(full=(img_fsize, img_fsize * 3),
                             thumbs=dict(thumb=(120,120)))
             banner_width = int(db.settings.filter(
