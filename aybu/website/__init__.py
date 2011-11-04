@@ -252,11 +252,16 @@ def add_assets(config):
             image_base = os.path.join(upload_path, "images")
             banner_base = os.path.join(upload_path, "banners")
             logo_base = os.path.join(upload_path, "logo")
+            prefix = 'static'
 
-            File.initialize(base=file_base,  private=upload_path)
-            Image.initialize(base=image_base, private=upload_path)
-            Banner.initialize(base=banner_base, private=upload_path)
-            Logo.initialize(base=logo_base, private=upload_path)
+            File.initialize(base=file_base, private=instance_static_path,
+                            url_prefix=prefix)
+            Image.initialize(base=image_base, private=instance_static_path,
+                             url_prefix=prefix)
+            Banner.initialize(base=banner_base, private=instance_static_path,
+                              url_prefix=prefix)
+            Logo.initialize(base=logo_base, private=instance_static_path,
+                            url_prefix=prefix)
 
             img_fsize = db.settings.filter(
                             db.settings.name == u'image_full_size').one().value
