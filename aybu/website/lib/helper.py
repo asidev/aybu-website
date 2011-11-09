@@ -18,7 +18,13 @@ limitations under the License.
 
 from aybu.core.utils.modifiers import urlify
 from aybu.core.models import Language
-from aybu.core.models import InternalLink, Node, Menu, Page, Section
+from aybu.core.models import (InternalLink,
+                              Node,
+                              Menu,
+                              Page,
+                              Section,
+                              Banner,
+                              Logo)
 from aybu.core.models import ExternalLink
 from aybu.core.models import Setting
 from collections import deque
@@ -136,6 +142,24 @@ class TemplateHelper(object):
         html = displayhtml('6LeNHcYSAAAAAKHbUX4bGAE-DE_0fR_J0nynW1OR', error)
         return literal(html)
 
+    def _get_default(self, cls):
+        session = self._request.db_session
+        obj = cls.get_default(session)
+        if obj:
+            # remove obj from session so no query can be
+            # issued by using it
+            session.expunge(obj)
+        return obj
+
+    @property
+    def default_banner(self):
+        return self._get_default(Banner)
+
+    @property
+    def default_logo(self):
+        return self._get_default(Logo)
+
+
 
 class SettingProxy(object):
 
@@ -158,6 +182,7 @@ class SettingProxy(object):
 
     def __getitem__(self, attr):
         return getattr(self, attr)
+
 
 class MenuProxy(object):
 
@@ -200,7 +225,6 @@ class NodeProxy(object):
     """
     FOLLOWING FUNCTIONS are NOT USED... I think because there are bugs.
     """
-
     def __eq__(self, node_proxy):
         if not isinstance(node_proxy, NodeProxy):
             raise Exception('Equivalence is allowed beetween NodeProxy object only')
