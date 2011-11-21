@@ -80,11 +80,11 @@ def get_root_resource(request):
         # Get the NodeInfo from database using path_info.
         log.debug('Get Context by NodeInfo %s.', path_info)
         try:
-            url_parts[-1] = UrlPart(part=url_parts[-1].part,
-                                    resource=PageInfo.get_by_url(
-                                                        request.db_session,
-                                                        path_info)
-                                )
+            # Remove '.ext' from the url.
+            url_parts[-1] = url_parts[-1].part.rsplit('.', 1)[0]
+            resource = PageInfo.get_by_url(request.db_session,
+                                           path_info.rsplit('.', 1)[0])
+            url_parts[-1] = UrlPart(part=url_parts[-1], resource=resource)
         except NoResultFound:
             return HTTPNotFound()
 
