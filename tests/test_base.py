@@ -90,7 +90,9 @@ class FunctionalBase(unittest.TestCase):
         parser = read_config()
         data = read_data()
         section = 'app:aybu-website'
-        populate(parser, data, section)
+        self.engine = engine_from_config_parser(parser, section)
+        session = create_session(self.engine)()
+        populate(parser, data, session)
 
         settings = {opt: parser.get(section, opt)
                     for opt in parser.options(section)}

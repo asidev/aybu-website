@@ -48,22 +48,18 @@ class ViewTests(BaseTests):
 
 
         npage_info_it = PageInfo(id=1, label='Normal', title='Normal Page',
-                               url_part='normal', url='/en/normal.html',
-                               node=npage, lang=en)
+                               url_part='normal', node=npage, lang=en)
         npage_info_en = PageInfo(id=2, label='Normale', title='Pagina Normale',
-                               url_part='normale', url='/it/normale.html',
-                               node=npage, lang=it)
+                               url_part='normale', node=npage, lang=it)
 
         self.session.add(npage_info_it)
         self.session.add(npage_info_en)
 
         hpage_info_it = PageInfo(id=3, label='Home', title='Pagina Principale',
-                             url_part='index', url='/it/index.html', node=hpage,
-                             lang=it)
+                                 url_part='index', node=hpage, lang=it)
 
         hpage_info_en = PageInfo(id=4, label='Home', title='Main Page',
-                             url_part='index', url='/en/index.html', node=hpage,
-                             lang=en)
+                                 url_part='index', node=hpage, lang=en)
 
         self.session.add(hpage_info_it)
         self.session.add(hpage_info_en)

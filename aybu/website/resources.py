@@ -61,8 +61,7 @@ def get_root_resource(request):
         path_info = path_info.replace('/admin', '')
         need_auth = True
 
-    language = Language.get_by_lang(request.db_session,
-                                            url_parts[0].part)
+    language = Language.get_by_lang(request.db_session, url_parts[0].part)
     request.language = language
     if language is None:
         # language not found, return a 404
@@ -86,7 +85,7 @@ def get_root_resource(request):
                                            path_info.rsplit('.', 1)[0])
             url_parts[-1] = UrlPart(part=url_parts[-1], resource=resource)
         except NoResultFound:
-            return HTTPNotFound()
+            raise HTTPNotFound()
 
     # Create the resources tree.
     # The last element in resources tree is the request context.
