@@ -227,9 +227,11 @@ def add_assets(config):
             themes_paths.insert(0, instance_template_path)
 
 
-            instance_static_path = pkg_resources.\
+            instance_static_path = os.path.realpath(
+                        pkg_resources.\
                                    resource_filename(instance_module_name,
                                                      'public/')
+            )
 
             upload_path = os.path.join(instance_static_path, 'uploads')
 
