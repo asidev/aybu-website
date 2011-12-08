@@ -15,9 +15,8 @@ instance = website_tests
 default_user.username = testusername
 default_user.password = testpassword
 
-[pipeline:main]
-pipeline =
-    aybu-website
+[app:main]
+use = aybu-website
 
 [server:main]
 use = egg:Paste#http

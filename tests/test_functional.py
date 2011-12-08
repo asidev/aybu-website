@@ -16,10 +16,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from . test_base import FunctionalBase
+from aybu.core.testing import FunctionalTestsBase
+from aybu.website import main
 
+class TestWebsite(FunctionalTestsBase):
 
-class TestWebsite(FunctionalBase):
+    def get_wsgi_app(self):
+        return main({}, **self.config)
 
     def test_redir(self):
         res = self.testapp.get('/', status=307)

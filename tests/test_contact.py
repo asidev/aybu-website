@@ -16,8 +16,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from aybu.core.testing import UnitTestsBase
 from aybu.core.models import Language, Setting, SettingType
-from . test_base import BaseTests
 import collections
 from pyramid.testing import DummyRequest
 
@@ -32,7 +32,7 @@ recaptcha.client.captcha.submit = closure
 import aybu.website.lib.contact_utils as cu
 
 
-class ContactTest(BaseTests):
+class ContactTest(UnitTestsBase):
 
     def add_languages_to_db(self):
         it = Language(lang=u'it', country=u'it')

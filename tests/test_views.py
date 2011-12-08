@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from . test_base import BaseTests
+from aybu.core.testing import UnitTestsBase
 from aybu.core.models import Language
 from aybu.core.models import Page
 from aybu.core.models import Menu
@@ -27,7 +27,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 
 
-class ViewTests(BaseTests):
+class ViewTests(UnitTestsBase):
 
     def add_test_data_to_db(self):
         """ Add some pages and languages to the database """
@@ -135,7 +135,7 @@ class ViewTests(BaseTests):
         from aybu.website.views import show_page
         self.add_test_data_to_db()
         self.ctx = PageInfo.get(self.session, 3)
-        dummy_rendererer = self.config.testing_add_renderer(
+        dummy_rendererer = self.configurator.testing_add_renderer(
                                         self.ctx.node.view.fs_view_path)
         show_page(self.ctx, self.req)
         dummy_rendererer.assert_(page=self.ctx, request=self.req)
