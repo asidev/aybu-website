@@ -5,3 +5,4 @@ syntax: glob
 ./aybu_website.egg-info
 ./dist
 ./.coverage
+.rvmrc
