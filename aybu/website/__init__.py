@@ -157,7 +157,7 @@ def add_assets(config):
     for theme in themes_inheritance_chain:
         log.info('-- Adding %s' % (theme.name))
 
-        theme_static_spec = 'aybu.themes.%s:/public/' % theme.name
+        theme_static_spec = 'aybu.themes.%s:/static/' % theme.name
         log.info("Adding '%s' as override for static files", theme_static_spec)
         config.override_asset(
             to_override = 'aybu.website:static/',
@@ -195,7 +195,7 @@ def add_assets(config):
         if instance_name is None or instance_name == '':
             raise KeyError()
         else:
-            instance_static_spec = '%s:/public/' % instance_module_name
+            instance_static_spec = '%s:/static/' % instance_module_name
             log.info("Adding '%s' as override for static files",
                      instance_static_spec)
             config.override_asset(
@@ -230,7 +230,7 @@ def add_assets(config):
             instance_static_path = os.path.realpath(
                         pkg_resources.\
                                    resource_filename(instance_module_name,
-                                                     'public/')
+                                                     'static/')
             )
 
             upload_path = os.path.join(instance_static_path, 'uploads')
