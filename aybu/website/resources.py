@@ -80,12 +80,16 @@ def get_root_resource(request):
         log.debug('Get Context by NodeInfo %s.', path_info)
         try:
             # Remove '.ext' from the url.
-            url_parts[-1] = url_parts[-1].part.rsplit('.', 1)[0]
+            url_parts[-1] = url_parts[-1].part
             resource = PageInfo.get_by_url(request.db_session,
                                            path_info.rsplit('.', 1)[0])
             url_parts[-1] = UrlPart(part=url_parts[-1], resource=resource)
         except NoResultFound:
             raise HTTPNotFound()
+        else:
+            log.debug('Found: %s', url_parts[-1])
+
+    log.debug('UrlParts: %s', url_parts)
 
     # Create the resources tree.
     # The last element in resources tree is the request context.
@@ -96,6 +100,7 @@ def get_root_resource(request):
         acl = Authenticated.__acl__
 
     for url_part, resource in url_parts:
+        log.debug('Urlpart: %s, Resource: %s', url_part, resource)
         resource.__parent__ = parent
         resource.__acl__ = acl
         parent = resource
@@ -103,6 +108,8 @@ def get_root_resource(request):
         tmp = tmp[url_part]
         log.debug("Resource: %s, acl: %s, parent: %s",
                   resource, resource.__acl__, resource.__parent__)
+
+    log.debug(root)
 
     return root
 
