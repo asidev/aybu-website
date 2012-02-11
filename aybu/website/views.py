@@ -61,4 +61,4 @@ def choose_default_language(context, request):
 def redirect_to_homepage(context, request):
     lang = get_negotiated_language(request)
     page = PageInfo.get_homepage(request.db_session, lang)
-    raise HTTPMovedPermanently(location=page.url)
+    raise HTTPMovedPermanently(location='%s.html' % page.url)
