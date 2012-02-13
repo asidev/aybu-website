@@ -56,17 +56,18 @@ def get_root_resource(request):
 
     need_auth = False
     if url_parts[0].part == 'admin':
-        log.debug("In admin panel, removing admin")
+        log.debug("Admin Panel Request: removing admin.")
         url_parts = url_parts[1:]
         path_info = path_info.replace('/admin', '')
         need_auth = True
 
     language = Language.get_by_lang(request.db_session, url_parts[0].part)
-    request.language = language
     if language is None:
         # language not found, return a 404
-        log.debug("No language found")
+        log.debug("No language found.")
         raise HTTPNotFound()
+    else:
+        request.language = language
 
     if len(url_parts) == 1:
         # URL is like '/{lang}'.
