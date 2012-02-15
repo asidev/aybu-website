@@ -16,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import collections
 from aybu.core.utils.modifiers import urlify
 from aybu.core.models import Language
 from aybu.core.models import (InternalLink,
@@ -157,7 +158,10 @@ class TemplateHelper(object):
 
     @property
     def default_logo(self):
-        return self._get_default(Logo)
+        default_logo = self._get_default(Logo)
+        if not default_logo:
+            default_logo = collections.namedtuple('Logo', ['url'])(url=None)
+        return default_logo
 
 
 
