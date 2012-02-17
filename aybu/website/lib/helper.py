@@ -18,6 +18,7 @@ limitations under the License.
 
 import collections
 from aybu.core.utils.modifiers import urlify
+from aybu.website.lib import get_pufferfish_paths
 from aybu.core.models import Language
 from aybu.core.models import (InternalLink,
                               Node,
@@ -39,6 +40,7 @@ import logging
 log = logging.getLogger(__name__)
 CSS = namedtuple('CSS', ['href', 'media'])
 JS = namedtuple('JS', ['href'])
+
 
 class NodeNotFound(object):
     """ A class mocking a translation when no translations
@@ -62,7 +64,7 @@ class TemplateHelper(object):
     def __init__(self, request):
         self._request = request
         self._settings = SettingProxy(self._request.db_session)
-        self._menus = MenuProxy(self._request.db_session)
+        self._menus = MenuProxy(self._request.db_session, request)
         self._languages = Language.get_by_enabled(self._request.db_session,
                                                       True)
 
@@ -76,15 +78,18 @@ class TemplateHelper(object):
             self._translation = self._request.context
             node = getattr(self._translation, 'node', None)
             if not node is None:
-                self._node = NodeProxy(node)
+                self._node = NodeProxy(node, self._request)
             else:
                 self._node = None
         else:
             self._translation = NodeNotFound(request)
-            self._node = NodeProxy(self._translation)
+            self._node = NodeProxy(self._translation, self._request)
 
     def static_url(self, resource_url):
         return str('/static%s' % resource_url)
+
+    def get_paths_for(self, cls):
+        return get_pufferfish_paths(self._request, cls)
 
     @property
     def lang(self):
@@ -121,7 +126,7 @@ class TemplateHelper(object):
 
     @node.setter
     def node(self, value):
-        self._node = NodeProxy(value)
+        self._node = NodeProxy(value, self._request)
 
     @property
     def languages(self):
@@ -149,6 +154,7 @@ class TemplateHelper(object):
         if obj:
             # remove obj from session so no query can be
             # issued by using it
+            obj.set_paths(**get_pufferfish_paths(self._request, cls))
             session.expunge(obj)
         return obj
 
@@ -162,7 +168,6 @@ class TemplateHelper(object):
         if not default_logo:
             default_logo = collections.namedtuple('Logo', ['url'])(url=None)
         return default_logo
-
 
 
 class SettingProxy(object):
@@ -190,10 +195,11 @@ class SettingProxy(object):
 
 class MenuProxy(object):
 
-    def __init__(self, session):
+    def __init__(self, session, request):
         self._menus = []
+        self._request = request
         for menu in Menu.get_by_enabled(session, True):
-            self._menus.insert(menu.weight - 1, NodeProxy(menu))
+            self._menus.insert(menu.weight - 1, NodeProxy(menu, request))
 
     def __getitem__(self, weight):
         return self._menus[weight - 1]
@@ -201,19 +207,20 @@ class MenuProxy(object):
 
 class NodeProxy(object):
 
-    def __init__(self, node):
+    def __init__(self, node, request):
 
         if node is None:
             raise ValueError('node cannot be None')
 
         self._node = node
+        self._request = request
 
         self._translations = getattr(self._node, 'translations', [])
         self._translations_dict = {}
         for translation in self._translations:
             self._translations_dict[translation.lang] = translation
 
-        self._children = [NodeProxy(child)
+        self._children = [NodeProxy(child, request)
                           for child in getattr(self._node, 'children', [])]
 
     def __getitem__(self, language):
@@ -256,7 +263,7 @@ class NodeProxy(object):
                 continue
             if parent is None:
                 continue
-            yield NodeProxy(parent)
+            yield NodeProxy(parent, self._request)
             if callback:
                 callback(parent)
             visited.append(parent)
@@ -271,7 +278,7 @@ class NodeProxy(object):
         """ Get all parents paths as a list
             i.e. with the tree A --> B --> C get_parents_path(C) returns [A, B]
         """
-        n = NodeProxy(self._node)
+        n = NodeProxy(self._node, self._request)
         path = [n]
         while n.parent:
             n = n.parent
@@ -287,7 +294,7 @@ class NodeProxy(object):
     def parent(self):
         if self._node.parent is None:
             return None
-        return NodeProxy(self._node.parent)
+        return NodeProxy(self._node.parent, self._request)
 
     @property
     def translations(self):
@@ -295,7 +302,10 @@ class NodeProxy(object):
 
     @property
     def banners(self):
-        return self._node.banners
+        banners = self._node.banners
+        for b in banners:
+            b.set_paths(**get_pufferfish_paths(self._request, Banner))
+        return banners
 
     @property
     def children(self):
@@ -343,7 +353,8 @@ class NodeInfoProxy(object):
         elif isinstance(self._info.node, (Menu, Section)):
             return None
         elif isinstance(self._info.node, InternalLink):
-            return NodeProxy(self.node.linked_to)[self.lang].url
+            return NodeProxy(self.node.linked_to,
+                             self.node._request)[self.lang].url
         elif isinstance(self._info.node, ExternalLink):
             return self._info.ext_url
         elif isinstance(self._info.node, NodeNotFound):

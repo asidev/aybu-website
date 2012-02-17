@@ -20,8 +20,8 @@ from aybu.core.request import Request
 from aybu.core.models import (Base,
                               File,
                               Image,
-                              Logo,
-                              Banner)
+                              Banner,
+                              Logo)
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
@@ -165,15 +165,6 @@ def add_assets(config):
             override_with=theme_static_spec
         )
 
-        """
-        favicon = '%sfavicon.ico' % (theme_static_spec)
-        log.info("Adding '%s' as override for favicon", favicon)
-        config.override_asset(
-            to_override = 'aybu.website:static/favicon.ico',
-            override_with = favicon
-        )
-        """
-
         theme_templates_spec = 'aybu.themes.%s:/templates/' % theme.name
         log.info("Adding '%s' as override for templates", theme_templates_spec)
         config.override_asset(
@@ -203,15 +194,6 @@ def add_assets(config):
                 to_override='aybu.website:static/',
                 override_with=instance_static_spec
             )
-
-            """
-            favicon = '%sfavicon.ico' % (instance_static_spec)
-            log.info("Adding '%s' as override for favicon", favicon)
-            config.override_asset(
-                to_override = 'aybu.website:static/favicon.ico',
-                override_with = favicon
-            )
-            """
 
             instance_templates_spec = '%s:/templates/' % instance_module_name
             log.info("Adding '%s' as override for templates",
@@ -249,46 +231,15 @@ def add_assets(config):
                 log.critical('Uploads will NOT work')
                 log.critical("*" * 79)
 
-            # Setup Pufferfish entities
-            file_base = os.path.join(upload_path, "files")
-            image_base = os.path.join(upload_path, "images")
-            banner_base = os.path.join(upload_path, "banners")
-            logo_base = os.path.join(upload_path, "logo")
-            prefix = 'static'
-
-            File.initialize(base=file_base, private=instance_static_path,
-                            url_prefix=prefix)
-            Image.initialize(base=image_base, private=instance_static_path,
-                             url_prefix=prefix)
-            Banner.initialize(base=banner_base, private=instance_static_path,
-                              url_prefix=prefix)
-            Logo.initialize(base=logo_base, private=instance_static_path,
-                            url_prefix=prefix)
-
-            img_fsize = int(
-                db.settings.filter(
-                        db.settings.name == u'image_full_size').one().value
-            )
-            Image.set_sizes(full=(img_fsize, img_fsize * 3),
-                            thumbs=dict(thumb=(120, 120)))
-            banner_width = int(db.settings.filter(
-                            db.settings.name == u'banner_width').one().value)
-            banner_height = int(db.settings.filter(
-                            db.settings.name == u'banner_height').one().value)
-            logo_height = int(db.settings.filter(
-                            db.settings.name == u'logo_height').one().value)
-            logo_width = int(db.settings.filter(
-                            db.settings.name == u'logo_width').one().value)
-
-            Banner.set_sizes(full=(banner_width, banner_height))
-            Logo.set_sizes(full=(logo_width, logo_height))
-
-            for dir_ in (file_base, image_base, banner_base, logo_base):
+            for cls in (File, Image, Banner, Logo):
+                cls.initialize()
+                up_path = os.path.join(upload_path, cls.dirname)
                 try:
-                    os.mkdir(dir_)
+                    os.mkdir(up_path)
+
                 except OSError as e:
                     if e.errno != 17:
-                        log.exception("Cannot create directory %s", dir_)
+                        log.exception("Cannot create directory %s", up_path)
                         raise e
 
     except KeyError as e:

@@ -15,3 +15,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+import os
+import os.path
+import pkg_resources
+
+
+def get_pufferfish_paths(request, type_):
+    pf_prefix = type_.url_prefix
+    instance_name = request.registry.settings['instance']
+    instance_module_name = "aybu.instances.%s" % (instance_name)
+    instance_static_path = os.path.realpath(
+                pkg_resources.\
+                           resource_filename(instance_module_name,
+                                             'static/')
+    )
+    upload_path = os.path.join(instance_static_path, 'uploads', type_.dirname)
+    return dict(base=upload_path, private=instance_static_path,
+                url_prefix=pf_prefix)
