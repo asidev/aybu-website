@@ -75,7 +75,7 @@ def add_routes(config):
     config.add_route('favicon', '/favicon.ico')
     config.add_route('robots', '/robots.txt')
     config.add_route('sitemap', '/sitemap.xml')
-    config.add_route('contact_post', pattern='/contact',request_method='POST')
+    config.add_route('contact_post', pattern='/contact', request_method='POST')
 
     # Put URL dispatch configuration statements before Traversal ones!!!
     config.add_route('pages', '/*traverse', factory=get_root_resource)
@@ -146,7 +146,8 @@ def add_assets(config):
 
     log.info("Preparing static search path for %s", theme)
     themes_inheritance_chain = []
-    themes_paths = [pkg_resources.resource_filename('aybu.website', 'templates')]
+    themes_paths = [pkg_resources.resource_filename('aybu.website',
+                                                    'templates')]
     while theme:
         themes_inheritance_chain.insert(0, theme)
         if theme.parent_name:
@@ -160,8 +161,8 @@ def add_assets(config):
         theme_static_spec = 'aybu.themes.%s:/static/' % theme.name
         log.info("Adding '%s' as override for static files", theme_static_spec)
         config.override_asset(
-            to_override = 'aybu.website:static/',
-            override_with = theme_static_spec
+            to_override='aybu.website:static/',
+            override_with=theme_static_spec
         )
 
         """
@@ -199,8 +200,8 @@ def add_assets(config):
             log.info("Adding '%s' as override for static files",
                      instance_static_spec)
             config.override_asset(
-                to_override = 'aybu.website:static/',
-                override_with = instance_static_spec
+                to_override='aybu.website:static/',
+                override_with=instance_static_spec
             )
 
             """
@@ -225,7 +226,6 @@ def add_assets(config):
                                                        'templates/')
             log.info("Adding '%s' to mako directories", instance_template_path)
             themes_paths.insert(0, instance_template_path)
-
 
             instance_static_path = os.path.realpath(
                         pkg_resources.\
@@ -270,7 +270,7 @@ def add_assets(config):
                         db.settings.name == u'image_full_size').one().value
             )
             Image.set_sizes(full=(img_fsize, img_fsize * 3),
-                            thumbs=dict(thumb=(120,120)))
+                            thumbs=dict(thumb=(120, 120)))
             banner_width = int(db.settings.filter(
                             db.settings.name == u'banner_width').one().value)
             banner_height = int(db.settings.filter(
@@ -294,7 +294,7 @@ def add_assets(config):
     except KeyError as e:
         log.critical("*" * 79)
         log.critical("No instance")
-        log.critical('Uploads and instance-specific templates/static will NOT work')
+        log.critical('Uploads and instance templates/static will NOT work')
         log.critical("*" * 79)
         raise e
 
