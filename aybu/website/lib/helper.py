@@ -340,7 +340,11 @@ class NodeInfoProxy(object):
     def url(self):
         if isinstance(self._info.node, Page):
             return self._info.url
-        elif isinstance(self._info.node, (Menu, Section)):
+        elif isinstance(self._info.node, Section):
+            if self._info.node.children:
+                return self.node.children[0][self._info.lang]._info.url
+            return None
+        elif isinstance(self._info.node, Menu):
             return None
         elif isinstance(self._info.node, InternalLink):
             return NodeProxy(self.node.linked_to)[self.lang].url
