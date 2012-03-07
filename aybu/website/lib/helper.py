@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 CSS = namedtuple('CSS', ['href', 'media'])
 JS = namedtuple('JS', ['href'])
 
+
 class NodeNotFound(object):
     """ A class mocking a translation when no translations
         are found for a given url (i.e. in 404)
@@ -164,7 +165,6 @@ class TemplateHelper(object):
         return default_logo
 
 
-
 class SettingProxy(object):
 
     def __init__(self, session):
@@ -177,7 +177,8 @@ class SettingProxy(object):
             return self._settings[attr_name].value
         except KeyError:
             try:
-                self._settings[attr_name] = Setting.get(self.session, attr_name)
+                self._settings[attr_name] = Setting.get(self.session,
+                                                        attr_name)
                 return self._settings[attr_name].value
             except NoResultFound:
                 msg = "Setting '%s' doesn't exist!" % attr_name
@@ -234,6 +235,10 @@ class NodeProxy(object):
             raise Exception('Equivalence is allowed beetween NodeProxy object only')
 
         return True if self._node.id == node_proxy._node.id else False
+
+    @property
+    def home(self):
+        return self._node.home
 
     @property
     def sitemap_priority(self):
