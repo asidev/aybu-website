@@ -40,7 +40,7 @@ keywords = ''
 include_package_data = True
 zip_safe = False
 
-requires = ('pyramid<1.3a', 'webOb>=1.2b2', 'WebError', 'SQLAlchemy<0.8a', 'Pillow',
+requires = ('pyramid<1.3a', 'webOb>=1.2b2', 'WebError', 'SQLAlchemy<0.8a',
             'Babel', 'recaptcha-client', 'WebHelpers', 'Mako',
             'aybu-core', 'aybu-themes',  'pyramid_mailer',
             'pyramid_debugtoolbar', 'pyramid_exclog')
