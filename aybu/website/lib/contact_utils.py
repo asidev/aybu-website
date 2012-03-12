@@ -119,8 +119,8 @@ def handle_contact_form(request):
                 result['vars'][key] = value
 
         body = u"%sMessaggio : \n%s\n" % (body, request.params.get('message'))
-
-        message = Message(subject=u"Nuovo messaggio dal form di contatto web",
+        subject = u'[%s] Nuovo messaggio dal form di contatto' % (request.host)
+        message = Message(subject=subject,
                         sender=request.params.get('email'),
                         body=body,
                         recipients=[r.value for r in recipients[0:1]],
