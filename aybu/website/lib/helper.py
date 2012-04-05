@@ -237,6 +237,10 @@ class NodeProxy(object):
         return True if self._node.id == node_proxy._node.id else False
 
     @property
+    def id(self):
+        return self._node.id
+
+    @property
     def home(self):
         return self._node.home
 
