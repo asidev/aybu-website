@@ -21,7 +21,8 @@ from aybu.core.models import (Base,
                               File,
                               Image,
                               Logo,
-                              Banner)
+                              Banner,
+                              Background)
 from aybu.website.resources import get_root_resource
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPNotFound
@@ -264,6 +265,9 @@ def add_assets(config):
                               url_prefix=prefix)
             Logo.initialize(base=logo_base, private=instance_static_path,
                             url_prefix=prefix)
+            Background.initialize(base=logo_base,
+                                  private=instance_static_path,
+                                  url_prefix=prefix)
 
             img_fsize = int(
                 db.settings.filter(
@@ -282,6 +286,7 @@ def add_assets(config):
 
             Banner.set_sizes(full=(banner_width, banner_height))
             Logo.set_sizes(full=(logo_width, logo_height))
+            Background.set_sizes(full=(2560, 2560))
 
             for dir_ in (file_base, image_base, banner_base, logo_base):
                 try:
