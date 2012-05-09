@@ -25,7 +25,8 @@ from aybu.core.models import (InternalLink,
                               Page,
                               Section,
                               Banner,
-                              Logo)
+                              Logo,
+                              Background)
 from aybu.core.models import ExternalLink
 from aybu.core.models import Setting
 from collections import deque
@@ -72,6 +73,7 @@ class TemplateHelper(object):
         self.section = None
         self.subsection = None
         self.page = None
+        self.backgrounds = Background.all(request.db_session)
 
         if hasattr(self._request, "context"):
             self._translation = self._request.context
