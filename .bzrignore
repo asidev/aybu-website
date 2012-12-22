@@ -1,8 +1,0 @@
-aybu_website.egg-info
-aybu_website.egg-info/**
-*.pyc
-development.ini
-aybu.db
-dev.ini
-.coverage
-./tests.ini

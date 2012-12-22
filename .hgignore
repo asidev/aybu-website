@@ -1,9 +1,0 @@
-syntax: glob
-
-*.pyc
-./*.ini
-./aybu_website.egg-info
-./dist
-./.coverage
-.rvmrc
-.env
